@@ -38,19 +38,19 @@ fact individualDef{
 //Axiom A2
 //An entity t is an instance first-order type ("FOT") iff all its instances are Individuals (i.e., instances of “Individual”)
 fact firstOrderTypeDef{
-	all t:Entity, f:FOT|  f in t.iof implies (all x:Entity, i:Individual | t in x.iof implies i in x.iof) 
+	all t:Entity, f:FOT|  f in t.iof iff (all x:Entity, i:Individual| some iof.t and (t in x.iof implies i in x.iof)) 
 }
 
 //Axiom A3
 //An entity t is an instance second-order type ("SOT") iff all its instances are first-order types (i.e., instances of “FOT”)
 fact secondOrderTypeDef{
-	all t:Entity, s:SOT|  s in t.iof implies (all t':Entity, f:FOT| t in t'.iof implies f in t'.iof) 
+	all t:Entity, s:SOT|  s in t.iof iff (all t':Entity, f:FOT| some iof.t and (t in t'.iof implies f in t'.iof))
 }
 
 //Axiom A4
 //An entity t is an instance third-order type ("TOT") iff all its instances are second-order types (i.e., instances of “SOT”)
 fact thirdOrderTypeDef{
-   all t:Entity, th:TOT|  th in t.iof implies (all t':Entity, s:SOT| t in t'.iof implies s in t'.iof) 
+   all t:Entity, th:TOT|  th in t.iof iff (all t':Entity, s:SOT| some iof.t and (t in t'.iof implies s in t'.iof))
 }
 
 
@@ -129,7 +129,7 @@ fact partitionsDef{
 
 //------------------------------------------------------------------------Axioms Section End--------------------------------------------------
 
-run {} for 15
+run {} for 18
 
 
 //------------------------------------------------------------Theorems on Sosym paper------------------------------------------------------
@@ -208,11 +208,14 @@ assert allTheoremsOfSosymPaper{
 }
 
 
-check allTheoremsOfSosymPaper for 18
+//check allTheoremsOfSosymPaper for 18
 
-//--------------------------------------------------Some more theorems (not included on Sosym paper)------------------------------------------------------------
+//--------------------------------------------------Theorems not formally defined on Sosym paper--------------------------------------------------
 
-//Properties of instanceOf relation
+//The theorems below are not explicity defined on Sosym paper but the rules that they formalize are cited in natural language
+
+/*Since the instantiation relation denotes that an element is a member of the extension of a type,
+ it must be irreflexive, asymmetric and intransitive */
 assert iofProperties{
 	//Assymetric
 	all x,y:Entity | x in y.iof => y not in x.iof
@@ -224,7 +227,12 @@ assert iofProperties{
 	all x:Entity | x not in x.^iof
 }
 
-//Properties of specialization relation
+/*Instantiation relations hold between two elements such that the last is one order higher than the former.*/
+assert iofCrossLevel{
+	all x,y:Entity, i:Individual, f:FOT, s:SOT, t:TOT | y in x.iof implies ((i in x.iof and f in y.iof) or (f in x.iof and s in y.iof) or (s in x.iof and t in y.iof) or (t in x.iof)) 
+}
+
+/*Specialization is a partial order relation (i.e., a reflexive, transitive and antisymmetric relation), which is guaranteed in this theory. */
 assert specializationProperties{
 	//Antissymetric
 	all x,y:Entity | (x in y.specializes and x!=y) => y not in x.specializes
@@ -233,6 +241,29 @@ assert specializationProperties{
 	//Transitive
 	all x,y,z:Entity | (y in x.specializes and z in y.specializes) => z  in x.specializes
 }
+
+/*Specializations and proper Specializations may only hold between types of the same order*/
+assert specializationIntraLevel{
+	all x,y:Entity, f:FOT, s:SOT, t:TOT | y in x.specializes implies ((f in x.iof and f in y.iof) or (s in x.iof and s in y.iof) or (t in x.iof and t in y.iof) or (t in x.specializes and t in y.specializes)) 
+}
+
+//subordination can only hold between higher-order types of equal order 
+assert subordinationIntraLevel{
+	all x,y:Entity, s:SOT, t:TOT | y in x.isSubordinateTo implies ((s in x.iof and s in y.iof) or (t in x.iof and t in y.iof) or (t in x.specializes and t in y.specializes)) 
+}
+
+
+//Given the power type definition (A11), if p1 is power type of t1 we conclude that p1 is one order higher then t1
+assert powertypeOfCrossLevel{
+	all x,y:Entity, f:FOT, s:SOT, t:TOT | x in y.powertypeOf implies ((f in x.iof and s in y.iof) or (s in x.iof and t in y.iof) or (t in x.iof and t in y.specializes)) 
+}
+
+//Characterization relations only occur between types of adjacent levels 
+assert characterizationCrossLevel{
+	all x,y:Entity, f:FOT, s:SOT, t:TOT | x in y.characterizes implies ((f in x.iof and s in y.iof) or (s in x.iof and t in y.iof) or (t in x.iof and t in y.specializes)) 
+}
+
+//The theorems below are not cited in Sosym paper, even in natural language
 
 //If a type x characterizes a type y then x characterizes all supertypes of y
 assert characterizationTransitivityThroughSpecialization{
@@ -243,9 +274,9 @@ assert characterizationTransitivityThroughSpecialization{
 assert supertypesOfBasicTypes{
 	all i:Individual, s:SOT, f:FOT, t:TOT | some i.specializes or some f.specializes or some s.specializes or some t.specializes
 }
+//-----------------------------------------------------------------------------------------------------------
 
-
-//check supertypesOfBasicTypes for 15
+//check characterizationCrossLevel for 18
 
 
 
