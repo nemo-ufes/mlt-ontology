@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright (c) 2015 Victorio A. Albani, João Paulo A. Almeida
+Copyright (c) 2015 Victorio A. Albani, João Paulo A. Almeida, Claudenir M. Fonseca
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

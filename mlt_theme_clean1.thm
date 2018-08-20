@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<alloy>
+
+<view>
+
+<defaultnode/>
+
+<defaultedge visible="no" constraint="no"/>
+
+<node>
+   <type name="Int"/>
+   <type name="String"/>
+   <type name="univ"/>
+   <type name="seq/Int"/>
+   <set name="$e" type="Entity"/>
+</node>
+
+<node hideunconnected="no" label="E">
+   <type name="Entity"/>
+</node>
+
+<node label="Type">
+   <set name="this/Type" type="Entity"/>
+</node>
+
+<node shape="Inv House" color="White" label="Individual">
+   <set name="this/Individual" type="Entity"/>
+</node>
+
+<node shape="Inv Trapezoid" color="Gray" label="OrderedType">
+   <set name="this/OrderedType" type="Entity"/>
+</node>
+
+<node shape="Inv Trapezoid" color="Green" label="BasicType">
+   <set name="this/BasicType" type="Entity"/>
+</node>
+
+<node shape="Trapezoid" color="Blue" label="OrderlessType">
+   <set name="this/OrderlessType" type="Entity"/>
+</node>
+
+<node showlabel="yes" label="Individual_">
+   <set name="this/Individual_" type="Entity"/>
+</node>
+
+<node showlabel="yes" label="OrderedType_">
+   <set name="this/OrderedType_" type="Entity"/>
+</node>
+
+<node showlabel="yes" label="OrderlessType_">
+   <set name="this/OrderlessType_" type="Entity"/>
+</node>
+
+<node showlabel="yes" label="Type_">
+   <set name="this/Type_" type="Entity"/>
+</node>
+
+<node showlabel="yes" shape="House" label="Entity_">
+   <set name="this/Entity_" type="Entity"/>
+</node>
+
+<edge attribute="yes">
+   <relation name="directCharacterizes"> <type name="Entity"/> <type name="Entity"/> </relation>
+   <relation name="isDirectSubordinateTo"> <type name="Entity"/> <type name="Entity"/> </relation>
+   <relation name="powertypeOf"> <type name="Entity"/> <type name="Entity"/> </relation>
+</edge>
+
+<edge color="Magic" style="Dotted" visible="yes" constraint="yes">
+   <relation name="directIof"> <type name="Entity"/> <type name="Entity"/> </relation>
+</edge>
+
+<edge layout="no">
+   <relation name="disjCharacterizes"> <type name="Entity"/> <type name="Entity"/> </relation>
+</edge>
+
+<edge style="Bold" visible="yes" layout="yes" constraint="yes">
+   <relation name="directSpecializes"> <type name="Entity"/> <type name="Entity"/> </relation>
+</edge>
+
+<edge style="Dotted">
+   <relation name="iof"> <type name="Entity"/> <type name="Entity"/> </relation>
+</edge>
+
+</view>
+
+</alloy>
