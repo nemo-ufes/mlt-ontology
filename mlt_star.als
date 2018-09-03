@@ -90,7 +90,7 @@ fact
 *	the signature Individual_ (with a underscore at the end).
 */
 sig Individual in Entity {}
-fact typeDef { all x:Entity | ( x in Individual iff no iof.x) }
+fact individualDef { all x:Entity | ( x in Individual iff no iof.x) }
 
 /** 	Type
 *	
@@ -294,7 +294,7 @@ fact partitionsDefinition
 
 
 
-/** 							USEFULL CONSTRAINTS						*/
+/** 							USEFUL CONSTRAINTS						*/
 /**				Some constraints for cutting out non-wanted models			*/
 
 
