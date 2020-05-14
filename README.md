@@ -14,6 +14,11 @@ There is also a specification of MLT* in Alloy comprising the following files (u
 * [mlt_theme_clean1.thm](mlt_theme_clean1.thm) - A basic theme for instance visualization;
 * [mlt_theme_clean2.thm](mlt_theme_clean2.thm) - A cleaner theme for instance visualization.
 
+In addition to the Alloy specifications, a specification in first-order logics in the TPTP syntax is also available, which can be used for automated theorem proving:
+
+* [tptp/mlt-star.p](tptp/mlt-star.p) - MLT* formalization in TPTP syntax;
+* [tptp/reports](tptp/reports) - Reports on automated proofs from [System on TPTP](http://www.tptp.org/cgi-bin/SystemOnTPTP).
+
 For further information see:
 1. Carvalho, V. A., Almeida, J. P. A.: Toward a well-founded theory for multi-level conceptual modeling. Software & Systems Modeling, Springer Berlin Heidelberg, 2016. https://doi.org/10.1007/s10270-016-0538-9
 2. Almeida, J. P. A., Fonseca, C. M., Carvalho, V. A., A Comprehensive Formal Theory for Multi-level Conceptual Modeling. In: 36th International Conference on Conceptual Modeling (ER 2017), 2017. https://doi.org/10.1007/978-3-319-69904-2_2
