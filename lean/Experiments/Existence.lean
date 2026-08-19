@@ -1,4 +1,5 @@
 import MLTStar
+import Experiments.NoConstants
 
 /-!
 # Experiment: what makes types exist
@@ -202,4 +203,173 @@ iterating a binary one. The two existence principles are independent — unions
 generate orderless types from types already present, the constants supply the
 ordered ones, and neither substitutes for the other. -/
 
+/-! ## 8. Singletons
+
+A third candidate existence principle, and the one with the clearest ontological
+reading: **every entity has a type**. Without it MLT* permits entities that
+nothing classifies — `cSot` is an instance of nothing in the four-element model.
+
+What singletons turn out to be is a *successor* on entities rather than a
+generator of new kinds. They preserve order rather than creating orderlessness
+(§8.2), which is exactly the opposite of what union does, and they are
+independent of both union and the constants (§8.4). -/
+
+/-- `s` is the singleton of `x`. -/
+def IsSingletonOf (s x : E) : Prop := ∀ y, iof y s ↔ y = x
+
+/-- Every entity has a singleton type. -/
+class SingletonClosed (E : Type u) [Domain E] : Prop where
+  exists_singleton : ∀ x : E, ∃ s, ∀ y, iof y s ↔ y = x
+
+noncomputable def sing [SingletonClosed E] (x : E) : E :=
+  (SingletonClosed.exists_singleton x).choose
+
+theorem iof_sing_iff [SingletonClosed E] (x y : E) : iof y (sing x) ↔ y = x :=
+  (SingletonClosed.exists_singleton x).choose_spec y
+
+theorem iof_self_sing [SingletonClosed E] (x : E) : iof x (sing x) :=
+  (iof_sing_iff x x).mpr rfl
+
+theorem sing_isType [SingletonClosed E] (x : E) : IsType (sing x) := ⟨x, iof_self_sing x⟩
+
+/-- Singletons separate points, without needing extensionality. -/
+theorem sing_inj [SingletonClosed E] {x y : E} (h : sing x = sing y) : x = y :=
+  (iof_sing_iff y x).mp (h ▸ iof_self_sing x)
+
+/-! ### 8.1 Every entity becomes classified -/
+
+theorem exists_type_of [SingletonClosed E] (x : E) : ∃ t, iof x t :=
+  ⟨sing x, iof_self_sing x⟩
+
+/-! ### 8.2 Singletons preserve order — they do not create orderlessness
+
+Contrast §5. A union across orders is orderless; a singleton is orderless
+exactly when its element already was. -/
+
+/-- A *type* that instantiates a basic type is ordered. (The base case cannot
+arise: the instances of the type of all individuals are individuals.) -/
+theorem orderedType_of_iof_basicType {x b : E}
+    (hb : BasicType b) (h : iof x b) (hx : IsType x) : OrderedType x := by
+  cases hb with
+  | individuals hbi => exact absurd hx ((hbi x).mp h)
+  | powertype hl hp => exact ⟨_, hl, (hp.2 x).mp h⟩
+
+theorem orderedType_sing_iff [SingletonClosed E] {x : E} :
+    OrderedType (sing x) ↔ ∃ b, BasicType b ∧ iof x b := by
+  constructor
+  · rintro ⟨b, hb, hs⟩
+    exact ⟨b, hb, hs.2 x (iof_self_sing x)⟩
+  · rintro ⟨b, hb, hib⟩
+    exact ⟨b, hb, ⟨sing_isType x, fun y hy => (iof_sing_iff x y).mp hy ▸ hib⟩⟩
+
+/-- The singleton of an orderless type is orderless. So singletons propagate the
+star phenomena but never introduce them. -/
+theorem orderlessType_sing [SingletonClosed E] {x : E} (h : OrderlessType x) :
+    OrderlessType (sing x) :=
+  ⟨sing_isType x, fun ho =>
+    let ⟨b, hb, hib⟩ := orderedType_sing_iff.mp ho
+    h.2 (orderedType_of_iof_basicType hb hib h.1)⟩
+
+/-! ### 8.3 Singletons force an infinite domain
+
+Iterating the singleton on an individual gives a chain that never repeats, since
+`sing` is injective and no singleton is an individual. The cost is the same one
+unbounded powertype closure carries. -/
+
+noncomputable def singChain [SingletonClosed E] (i : E) : Nat → E
+  | 0 => sing i
+  | n + 1 => sing (singChain i n)
+
+theorem singChain_isType [SingletonClosed E] (i : E) (n : Nat) :
+    IsType (singChain i n) := by
+  cases n with
+  | zero => exact sing_isType i
+  | succ k => exact sing_isType _
+
+theorem singChain_injective [SingletonClosed E] {i : E} (hi : Individual i) :
+    ∀ m n, singChain i m = singChain i n → m = n := by
+  intro m
+  induction m with
+  | zero =>
+      intro n h; cases n with
+      | zero => rfl
+      | succ k => exact absurd (singChain_isType i k) (sing_inj h ▸ hi)
+  | succ j ih =>
+      intro n h; cases n with
+      | zero => exact absurd (singChain_isType i j) ((sing_inj h).symm ▸ hi)
+      | succ k => exact congrArg Nat.succ (ih k (sing_inj h))
+
+/-- Singleton closure embeds `Nat` in the domain. -/
+theorem nat_embeds_of_singletonClosed [Grounded E] [SingletonClosed E] [Nonempty E] :
+    ∃ f : Nat → E, ∀ m n, f m = f n → m = n := by
+  obtain ⟨i, hi⟩ := MLTStar.Experiment.exists_individual_of_grounded (E := E)
+  exact ⟨singChain i, singChain_injective hi⟩
+
+/-! ### 8.4 Singletons with unions give every finite extension
+
+Singleton supplies the points and union the gluing, so together they realise
+every finite non-empty class of entities as a type — *finite* comprehension,
+which is bounded and so untouched by §10's Russell argument. This is where the
+generative power of the two principles together sits. -/
+
+theorem exists_pairType [SingletonClosed E] [UnionClosed E] (x y : E) :
+    ∃ p, ∀ z, iof z p ↔ (z = x ∨ z = y) := by
+  obtain ⟨u, hu⟩ :=
+    UnionClosed.exists_union (sing x) (sing y) (sing_isType x) (sing_isType y)
+  exact ⟨u, fun z => (hu z).trans (or_congr (iof_sing_iff x z) (iof_sing_iff y z))⟩
+
 end MLTStar.Existence
+
+/-! ## 9. The three principles are independent
+
+`Chain` — the natural numbers, each level the sole instance of the next — is
+already singleton-closed: `sing ⟨n⟩ = ⟨n+1⟩`. It has no unions. `Pair` has
+unions and no singletons. The four-element model has the constants and no
+singletons. So singleton, union and the constants are three separate posits, and
+none is a consequence of the others. -/
+
+namespace MLTStar.Experiment.Chain
+
+open MLTStar.Existence
+
+instance : SingletonClosed Lvl where
+  exists_singleton x := ⟨⟨x.n + 1⟩, fun y => by
+    constructor
+    · intro h
+      have hx : x.n + 1 = y.n + 1 := iof_iff.mp h
+      exact eq_of_n (by omega)
+    · intro h; exact iof_iff.mpr (show x.n + 1 = y.n + 1 by rw [h])⟩
+
+/-- …but no unions: every extension in the chain has exactly one member. -/
+theorem not_unionClosed : ¬ UnionClosed Lvl := by
+  intro h
+  obtain ⟨u, hu⟩ := h.exists_union ⟨1⟩ ⟨2⟩
+    (isType_iff.mpr (show 0 < 1 by omega)) (isType_iff.mpr (show 0 < 2 by omega))
+  have h0 : u.n = 0 + 1 := iof_iff.mp ((hu ⟨0⟩).mpr (Or.inl (iof_iff.mpr rfl)))
+  have h1 : u.n = 1 + 1 := iof_iff.mp ((hu ⟨1⟩).mpr (Or.inr (iof_iff.mpr rfl)))
+  omega
+
+end MLTStar.Experiment.Chain
+
+namespace MLTStar.Existence.Pair
+
+/-- `Pair` has unions but no singletons: nothing has `t` as an instance. -/
+theorem not_singletonClosed : ¬ SingletonClosed P := by
+  intro h
+  obtain ⟨s, hs⟩ := h.exists_singleton .t
+  have hno : ∀ s : P, ¬ iof P.t s := by decide
+  exact hno s ((hs .t).mpr rfl)
+
+end MLTStar.Existence.Pair
+
+namespace MLTStar.Model
+
+/-- The four-element model has the constants but no singletons: nothing has
+`cSot` as an instance. -/
+theorem not_singletonClosed : ¬ Existence.SingletonClosed W := by
+  intro h
+  obtain ⟨s, hs⟩ := h.exists_singleton .cSot
+  have hno : ∀ s : W, ¬ iof W.cSot s := by decide
+  exact hno s ((hs .cSot).mpr rfl)
+
+end MLTStar.Model

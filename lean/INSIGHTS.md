@@ -379,6 +379,58 @@ there are two independent existence principles in play — unions generate
 orderless types from types already present, the constants supply the ordered
 ones — and the theory currently states only the second.
 
+## 14. Singletons: the third existence principle
+
+The natural candidate for what MLT* is missing, and the one with an ontological
+reading the others lack — **every entity has a type**. Without it the theory
+permits entities that nothing classifies: `cSot` is an instance of nothing in the
+four-element model.
+
+Adding it (`SingletonClosed`) settles several things at once.
+
+**It classifies everything, and separates points.** `exists_type_of` is
+immediate, and `sing_inj` — distinct entities have distinct singletons — needs no
+extensionality, since `x` instantiates its own singleton.
+
+**But it does not generate orderless types.** This is the sharp contrast with
+union, and it is the answer to whether singletons are the missing piece for §13:
+
+> `orderedType_sing_iff` — `sing x` is ordered exactly when `x` instantiates some
+> basic type. Hence `orderlessType_sing`: the singleton of an orderless type is
+> orderless, and the singleton of anything ordered is ordered.
+
+Singletons *propagate* the star phenomena and never introduce them. Union
+introduces them and cannot separate points. The two principles do genuinely
+different work.
+
+**It costs an infinite domain.** Iterating on an individual gives a chain that
+never repeats (`nat_embeds_of_singletonClosed`), for the same reason unbounded
+powertype closure does.
+
+**Together with union it gives finite comprehension.** Singleton supplies the
+points, union the gluing, so every finite non-empty class of entities is realised
+as a type — `exists_pairType` is the two-element case. Finite comprehension is
+bounded, so §10's Russell argument does not touch it. This is where the
+generative power sits.
+
+**The three are independent.** Each of the models already in the development
+separates them:
+
+| Model | singleton | union | constants |
+| --- | --- | --- | --- |
+| `Chain` (the naturals) | yes | no (`not_unionClosed`) | — |
+| `Pair` | no (`not_singletonClosed`) | yes | — |
+| `Model.W` (four elements) | no (`not_singletonClosed`) | no | yes |
+
+`Chain` is singleton-closed for a pleasing reason: `sing ⟨n⟩ = ⟨n+1⟩`, so in that
+model the singleton *is* the successor, and is also the Cardelli powertype.
+
+**So the answer to "is singleton the missing principle" is: it is one of three,
+and not the one that explains orderless types.** The existence story that emerges
+has three independent posits — singleton for classification, union for
+orderlessness, and the constants for the infinitary collections neither can
+reach — where the theory as published states only the third.
+
 ## What could be proved next
 
 Open, in rough order of how much they would clarify:

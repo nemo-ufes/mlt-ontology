@@ -51,7 +51,7 @@ LEAN_PATH=.lake/build/lib/lean lean scripts/AxiomAudit.lean
 | `Experiments/NoConstants.lean` | An alternative axiomatisation replacing `a13`–`a15`; see below |
 | `Experiments/Designs.lean` | Specialization as a partial order, the powertype as an order embedding and right adjoint, independence of the axioms, and why comprehension is unavailable |
 | `Experiments/Subordination.lean` | Why self-subordination is an ascending chain condition, and is refuted by finiteness rather than by order |
-| `Experiments/Existence.lean` | What makes types exist: unions are not comprehension, meets fail for a different reason, and union closure forces orderless types |
+| `Experiments/Existence.lean` | What makes types exist: singletons, unions and the constants as three independent principles |
 
 ## How the encoding is organised
 
@@ -392,4 +392,12 @@ claims outright are the three constants; everything else is conditional.
   anything mixed orderless. Where `Model.no_orderless` shows the base axioms
   merely permit the star phenomena, one bounded existence principle forces them.
 
-See `INSIGHTS.md` §9–13 for the discussion and the remaining open targets.
+* **Singletons are a third, independent principle.** `SingletonClosed` says every
+  entity has a type, so everything is classified (`exists_type_of`) and points are
+  separated (`sing_inj`, needing no extensionality). But `orderedType_sing_iff`
+  shows singletons *preserve* order — they propagate orderlessness and never
+  create it, the opposite of union. With union they give every finite extension
+  (`exists_pairType`), which is bounded comprehension and so safe. `Chain`,
+  `Pair` and `Model.W` separate the three principles pairwise.
+
+See `INSIGHTS.md` §9–14 for the discussion and the remaining open targets.
