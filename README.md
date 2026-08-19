@@ -22,6 +22,7 @@ In addition to the Alloy specifications, a specification in first-order logics i
 Finally, there is a machine-checked encoding of MLT* in the [Lean 4](https://lean-lang.org) proof assistant:
 
 * [lean/](lean) - MLT* in Lean 4, with proofs of every conjecture of [tptp/mlt-star.p](tptp/mlt-star.p), the stratification notions (basic, ordered and orderless types) of [mlt_star.als](mlt_star.als), and an explicit finite model establishing consistency. See [lean/README.md](lean/README.md).
+* [lean/INSIGHTS.md](lean/INSIGHTS.md) - What the Lean encoding showed about MLT* that the Alloy and TPTP specifications did not, including the two defects it found in [tptp/mlt-star.p](tptp/mlt-star.p).
 
 Where the Alloy specifications validate the theory within a bounded scope and the TPTP specification relies on external automated provers, the Lean development carries proof terms that are checked by the Lean kernel. It depends only on Lean 4 core — no Mathlib — and is built with `cd lean && lake build`.
 

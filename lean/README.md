@@ -11,6 +11,11 @@ There are **no `sorry`s** and **no dependencies** — not even Mathlib. The proo
 use only Lean 4 core and its three standard axioms (`propext`,
 `Classical.choice`, `Quot.sound`).
 
+**[INSIGHTS.md](INSIGHTS.md)** collects what the encoding showed that was not
+visible from the existing specifications — including that only five of the TPTP
+file's 23 axioms survive as assumptions, that `a4` is used by no conjecture
+there, and that `a13`–`a15` turns out to be the load-bearing one.
+
 ## Building
 
 ```sh
@@ -40,6 +45,7 @@ LEAN_PATH=.lake/build/lib/lean lean scripts/AxiomAudit.lean
 | `MLTStar/Acyclicity.lean` | What `a4` rules out: no self-powertype, no self-categorizer |
 | `MLTStar/Stratification.lean` | Basic, ordered and orderless types; the universal type is orderless |
 | `MLTStar/Model.lean` | A four-element model, hence consistency |
+| `INSIGHTS.md` | What the encoding showed that the Alloy and TPTP specifications did not |
 | `scripts/AxiomAudit.lean` | Reports, per result, which axioms its proof term actually reaches |
 | `derivation-graph.html` | The derivation graph drawn from that report |
 
@@ -105,7 +111,7 @@ actually needs.
 | `a7`, `a8` | `Specializes`, `ProperSpecializes` |
 | `a9` | `Extensional.typeExtensionality` |
 | `a10`, `a11` | `IsPowertypeOf`, `Categorizes` |
-| `a12` | `IsSubordinateTo` (per the paper and `mlt_star.als`; the TPTP formula is erroneous — see below) |
+| `a12` | `IsSubordinateTo` (per the paper and `mlt_star.als`; the TPTP formula was erroneous and has been corrected — see below) |
 | `completeCategorizationDefinition` | `CompletelyCategorizes` |
 | `disjointCategorizationDefinition` | `DisjointlyCategorizes` |
 | `partitioningDefinition` | `Partitions` |
