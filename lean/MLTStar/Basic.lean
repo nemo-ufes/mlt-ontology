@@ -4,8 +4,7 @@ import MLTStar.Defs
 # Basic consequences of the MLT* axioms
 
 Includes the TPTP sanity check `typesAndIndividualsPartitionEntity`, the order
-properties of specialization, the grounding theorem obtained from `a4`, and the
-comparison between the paper's and the TPTP file's notions of subordination.
+properties of specialization, and the grounding theorem obtained from `a4`.
 -/
 
 namespace MLTStar
@@ -107,28 +106,12 @@ theorem exists_individual_reachable [Grounded E] {x : E} (hx : IsType x) :
     grounded (fun w => Reaches x w ∧ IsType w) ⟨x, Reaches.refl, hx⟩ (fun _ hy => hy.2)
   exact hzn ⟨Reaches.step hry hz, hty z (Reaches.step hry hz)⟩
 
-/-! ## Subordination
-
-`tptp/mlt-star.p` renders subordination with a universal quantifier where the
-ER 2017 paper and `mlt_star.als` use an existential one.  Both readings are
-recorded in `MLTStar.Defs`, and the implication below is the only relation
-between them that holds in general: the converse fails whenever `t₂` has two
-instances that a single instance of `t₁` cannot both proper specialize.  Which
-of the two is intended is a question for the theory's authors; see the note in
-`lean/README.md`. -/
+/-! ## Subordination -/
 
 theorem IsSubordinateTo.isType_left {t₁ t₂ : E} (h : IsSubordinateTo t₁ t₂) :
     IsType t₁ := h.1
 
 theorem IsSubordinateTo.isType_right {t₁ t₂ : E} (h : IsSubordinateTo t₁ t₂) :
     IsType t₂ := h.2.1
-
-/-- The TPTP reading of subordination implies the paper's reading.  The
-existential witness is supplied by `IsType t₂`, i.e. by the fact that `t₂`, being
-a type, has an instance. -/
-theorem isSubordinateTo_of_tptp {t₁ t₂ : E} (h : IsSubordinateTo.tptp t₁ t₂) :
-    IsSubordinateTo t₁ t₂ := by
-  obtain ⟨h₁, ⟨t₄, ht₄⟩, h₃⟩ := h
-  exact ⟨h₁, ⟨t₄, ht₄⟩, fun t₃ ht₃ => ⟨t₄, ht₄, h₃ t₃ t₄ ht₃ ht₄⟩⟩
 
 end MLTStar

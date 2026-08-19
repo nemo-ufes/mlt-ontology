@@ -25,7 +25,7 @@ Lean 4.23.0 is pinned in `lean-toolchain`; `elan` will fetch it automatically.
 | File | Contents |
 | --- | --- |
 | `MLTStar/Defs.lean` | The signature (`Domain`), all defined notions, and the axioms (`Extensional`, `Grounded`, `Constants`) |
-| `MLTStar/Basic.lean` | Types/individuals partition the domain; order properties of specialization; grounding on individuals; subordination |
+| `MLTStar/Basic.lean` | Types/individuals partition the domain; order properties of specialization; grounding on individuals |
 | `MLTStar/Powertype.lean` | The powertype theorems `t1`–`t5` and `powertypeNotFirstOrder` |
 | `MLTStar/Constants.lean` | Consequences of `a13`–`a15`: the chain `cIndividual : cFot : cSot`, their uniqueness, and that they are Cardelli powertypes of one another |
 | `MLTStar/AntiPatterns.lean` | The anti-pattern theorems `ap1`, `ap2`, `ap3` |
@@ -94,7 +94,7 @@ actually needs.
 | `a7`, `a8` | `Specializes`, `ProperSpecializes` |
 | `a9` | `Extensional.typeExtensionality` |
 | `a10`, `a11` | `IsPowertypeOf`, `Categorizes` |
-| `a12` | `IsSubordinateTo` (paper reading), `IsSubordinateTo.tptp` (TPTP reading) |
+| `a12` | `IsSubordinateTo` (per the paper and `mlt_star.als`; the TPTP formula is erroneous — see below) |
 | `completeCategorizationDefinition` | `CompletelyCategorizes` |
 | `disjointCategorizationDefinition` | `DisjointlyCategorizes` |
 | `partitioningDefinition` | `Partitions` |
@@ -129,30 +129,23 @@ relies on an external prover, this is checked by the Lean kernel.
 
 ## Notes for the maintainers
 
-Three things surfaced while transcribing the specifications. None of them
-affects the theorems; all three are recorded rather than silently resolved.
-
-1. **Subordination is defined differently in the Alloy and TPTP files.**
-   `mlt_star.als` and the ER 2017 paper say that every instance of `t₁` proper
-   specializes *some* instance of `t₂`:
+1. **`a12_subordinationDef` in `tptp/mlt-star.p` is wrong** and is not encoded
+   here. It quantifies universally where `mlt_star.als` and the ER 2017 paper
+   quantify existentially — "every instance of `t₁` proper specializes *every*
+   instance of `t₂`" instead of *some* instance:
 
    ```alloy
    isSubordinateTo[t1,t2] iff (all t3 : iof.t1 | some (t3.properSpecializes & iof.t2))
    ```
-
-   `tptp/mlt-star.p` says *every*:
-
    ```tptp
    ![T3,T4]:( (iof(T3,T1)&iof(T4,T2))=>properSpecializes(T3,T4))
    ```
 
-   Both are encoded (`IsSubordinateTo` and `IsSubordinateTo.tptp`), and
-   `isSubordinateTo_of_tptp` proves the TPTP reading implies the paper's — the
-   existential witness comes for free from the fact that `t₂`, being a type, has
-   an instance. The converse fails as soon as `t₂` has two instances that a
-   single instance of `t₁` cannot both specialize. Since no conjecture in the
-   TPTP file mentions subordination, nothing there depends on the choice; the
-   paper's reading is taken as primary here.
+   The universal version collapses its second argument: any two instances of
+   `t₂` would have to share an instance, so a `t₂` that disjointly categorizes
+   anything could have at most one instance. `IsSubordinateTo` follows the paper
+   and the Alloy specification. No conjecture in the TPTP file mentions
+   subordination, so nothing proved there is affected.
 
 2. **The comments on `t1_basetypeUnique` and `t2_powertypeUnique` are swapped**
    relative to the formulae they annotate. `t1`'s formula fixes the base type
