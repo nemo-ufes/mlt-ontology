@@ -51,6 +51,7 @@ LEAN_PATH=.lake/build/lib/lean lean scripts/AxiomAudit.lean
 | `Experiments/NoConstants.lean` | An alternative axiomatisation replacing `a13`–`a15`; see below |
 | `Experiments/Designs.lean` | Specialization as a partial order, the powertype as an order embedding and right adjoint, independence of the axioms, and why comprehension is unavailable |
 | `Experiments/Subordination.lean` | Why self-subordination is an ascending chain condition, and is refuted by finiteness rather than by order |
+| `Experiments/Existence.lean` | What makes types exist: unions are not comprehension, meets fail for a different reason, and union closure forces orderless types |
 
 ## How the encoding is organised
 
@@ -353,9 +354,8 @@ which is why the four-element model satisfies it (`Model.stratified_two`).
   independent.
 * **Comprehension is unavailable**: `no_comprehension` is Russell's argument on
   instantiation, and `no_separation_with_universal` shows the usual repair fails
-  once a universal type exists — which is what MLT* was extended to admit. So the
-  powertype is the only type-forming operation the theory can afford, and the
-  poset above cannot be made a lattice.
+  once a universal type exists — which is what MLT* was extended to admit. This
+  does *not* rule out bounded type-forming operations; see `Existence.lean`.
 
 * **The powertype is a right adjoint**, to "union of instances":
   `union_powertype` shows union inverts `℘` on its image, and
@@ -372,4 +372,24 @@ ascending chains, so neither helps. What does is finiteness:
 `nat_embeds_of_self_subordinate` shows a self-subordinate type embeds `Nat` into
 its own instances, so subordination is irreflexive in every finite model.
 
-See `INSIGHTS.md` §9–12 for the discussion and the remaining open targets.
+### `Existence.lean` — what makes types exist
+
+The base theory says almost nothing about which types there are. `IsPowertypeOf`
+is a defined relation, never asserted to be inhabited, so the only types MLT*
+claims outright are the three constants; everything else is conditional.
+
+* **Union is not comprehension.** A binary union is bounded and does not
+  reproduce Russell. Adding it makes the types a join-semilattice
+  (`IsJoinOf.least` shows the union really is the least upper bound), and
+  `Pair.consistent` gives a model.
+* **Meets fail for a different reason entirely.** `Individual` is *defined* as
+  "has no instances", so there is no empty type (`no_empty_type`), and disjoint
+  types have no meet (`no_meet_of_disjoint`). This bites exactly where MLT*'s own
+  partitioning applies (`no_meet_of_disjointlyCategorizes`).
+* **Union closure forces orderless types.** `exists_orderlessType`: with the
+  constants and binary unions, the union of `cIndividual` and `cFot` has both an
+  individual and a type among its instances, and `not_orderedType_of_mixed` makes
+  anything mixed orderless. Where `Model.no_orderless` shows the base axioms
+  merely permit the star phenomena, one bounded existence principle forces them.
+
+See `INSIGHTS.md` §9–13 for the discussion and the remaining open targets.

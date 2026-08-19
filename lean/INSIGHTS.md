@@ -274,10 +274,12 @@ turns out to be forced.
   contradiction as soon as a universal type exists.
 
 And a universal type is precisely what MLT* was extended to admit (§5). So the
-theory cannot have comprehension *or* separation, and the powertype is what
-remains. This also explains an absence: there is no meet or join on types, since
-that would need exactly the comprehension the theory cannot have. The poset of
-§9 is a poset, not a lattice, and cannot be made one.
+theory cannot have comprehension *or* separation.
+
+It does not follow that the theory can have no type-forming operations at all —
+see §13, which corrects an over-reach in an earlier version of this section.
+Comprehension is unbounded; a *binary union* is not, and the two fail for quite
+different reasons, or in the case of union do not fail.
 
 ## 11. Subordination is bounded by finiteness, not by order
 
@@ -324,6 +326,58 @@ guarantee the unions exist — by §10 it has no comprehension to build them wit
 The adjoint is definable pointwise wherever the union happens to be there, and
 nowhere else. That is the same absence that keeps the poset of types from being
 a lattice, seen from another side.
+
+## 13. Union is not comprehension, and type existence is the real gap
+
+An earlier version of §10 said the types have no meets or joins "since that
+would need exactly the comprehension the theory cannot have". That is wrong, and
+the mistake is worth keeping because the correction is the most interesting thing
+in this document.
+
+**The base theory says almost nothing about which types exist.** `IsPowertypeOf`
+is a *defined relation* and is nowhere asserted to be inhabited, so the only
+types MLT* claims outright are the three constants. Every other result is
+conditional: *if* such types exist, then… That is the real gap, and comprehension
+was a red herring for it.
+
+**Joins are fine.** A binary union names no predicate the theory lacked
+extensions for; it is bounded, and Russell's argument does not touch it. Adding
+it makes the types a join-semilattice — `IsJoinOf.le_left`, `.le_right` and
+`.least` show the union is genuinely the least upper bound in the specialization
+order — and `Pair.consistent` gives a model, so union closure is not
+self-defeating the way comprehension is.
+
+**Meets fail for an unrelated reason.** MLT* *defines* `Individual x` as "`x` has
+no instances". An entity with empty extension is therefore an individual, not an
+empty type: `no_empty_type`. Two types with disjoint extensions consequently have
+no meet (`no_meet_of_disjoint`), and this is not an edge case —
+`no_meet_of_disjointlyCategorizes` shows it bites exactly where MLT*'s own
+partitioning notion applies, since the instances of a disjoint categorizer are
+pairwise disjoint by construction. So the obstruction is the individual/type
+dichotomy, not comprehension.
+
+**And union closure earns its keep.** It is not merely harmless:
+
+> `exists_orderlessType` — with the constants and binary unions, an orderless
+> type must exist.
+
+The type of all individuals has an individual among its instances; the type of
+all first-order types has `cIndividual`, a *type*, among its instances. Their
+union has both, and a type with both an individual and a type among its
+instances can specialize no basic type (`not_orderedType_of_mixed`: a basic type
+is either the type of all individuals, whose instances are all individuals, or a
+powertype, whose instances are all types — so neither can be specialized by
+something mixed).
+
+This is the best answer this development has to where orderless types come from.
+`Model.no_orderless` shows the base axioms merely *permit* them; a single bounded
+existence principle *forces* them. Basic MLT plus binary unions is MLT*.
+
+What union does not give is the constants: `cIndividual` collects all
+individuals, an infinitary union that no iteration of a binary one reaches. So
+there are two independent existence principles in play — unions generate
+orderless types from types already present, the constants supply the ordered
+ones — and the theory currently states only the second.
 
 ## What could be proved next
 
