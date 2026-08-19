@@ -140,10 +140,10 @@ relies on an external prover, this is checked by the Lean kernel.
 
 ## Notes for the maintainers
 
-1. **`a12_subordinationDef` in `tptp/mlt-star.p` is wrong** and is not encoded
-   here. It quantifies universally where `mlt_star.als` and the ER 2017 paper
-   quantify existentially — "every instance of `t₁` proper specializes *every*
-   instance of `t₂`" instead of *some* instance:
+1. **`a12_subordinationDef` in `tptp/mlt-star.p` was wrong, and is now fixed.**
+   It quantified universally where `mlt_star.als` and the ER 2017 paper quantify
+   existentially — "every instance of `t₁` proper specializes *every* instance of
+   `t₂`" instead of *some* instance:
 
    ```alloy
    isSubordinateTo[t1,t2] iff (all t3 : iof.t1 | some (t3.properSpecializes & iof.t2))
@@ -155,14 +155,17 @@ relies on an external prover, this is checked by the Lean kernel.
    The universal version collapses its second argument: any two instances of
    `t₂` would have to share an instance, so a `t₂` that disjointly categorizes
    anything could have at most one instance. `IsSubordinateTo` follows the paper
-   and the Alloy specification. No conjecture in the TPTP file mentions
-   subordination, so nothing proved there is affected.
+   and the Alloy specification, and the TPTP formula has been corrected to match.
+   No conjecture in the TPTP file mentions subordination, so nothing proved there
+   was affected.
 
-2. **The comments on `t1_basetypeUnique` and `t2_powertypeUnique` are swapped**
-   relative to the formulae they annotate. `t1`'s formula fixes the base type
-   and shows the powertype unique; its comment says the opposite, and `t2` is
-   the mirror image. The formulae are transcribed as written and the Lean
-   doc-strings describe what is actually proved.
+2. **The formulae of `t1_basetypeUnique` and `t2_powertypeUnique` were
+   interchanged** with respect to their names and comments: `t1`'s formula fixed
+   the base type and showed the powertype unique, which is what its name and
+   comment ascribe to `t2`. The two formulae have been swapped in the TPTP file
+   so that each matches its name. Both were provable before and remain so — the
+   Lean statements are unchanged — but each report in `tptp/reports` now
+   corresponds to the other conjecture's formula.
 
 3. **`a4` is not needed for any conjecture in the TPTP file.** This is why
    `Extensional` and `Grounded` are separate classes: a theorem can only use an

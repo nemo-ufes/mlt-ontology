@@ -118,9 +118,9 @@ def Partitions (t₁ t₂ : E) : Prop :=
 /-- (a12) Subordination, as defined in the ER 2017 paper and in `mlt_star.als`:
 every instance of `t₁` proper specializes *some* instance of `t₂`.
 
-`a12_subordinationDef` in `tptp/mlt-star.p` quantifies universally where the
-paper quantifies existentially.  That is an error in the TPTP file, not a
-variant of the theory, so it is not encoded here. -/
+`a12_subordinationDef` in `tptp/mlt-star.p` used to quantify universally where
+the paper quantifies existentially.  That was an error in the TPTP file rather
+than a variant of the theory, and has been corrected there to match this. -/
 def IsSubordinateTo (t₁ t₂ : E) : Prop :=
   IsType t₁ ∧ IsType t₂ ∧ ∀ t₃, iof t₃ t₁ → ∃ t₄, iof t₄ t₂ ∧ ProperSpecializes t₃ t₄
 

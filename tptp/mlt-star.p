@@ -8,6 +8,21 @@
 % (Only one conjecture at a time admitted by the system, comment all conjectures
 % not being investigated.)
 %
+% Two corrections, found while encoding this fragment in Lean 4 (see lean/):
+%
+%  - a12_subordinationDef quantified T4 universally, requiring every instance of
+%    T1 to proper specialize EVERY instance of T2 rather than some instance of
+%    it. That forces any two instances of T2 to share an instance, so a T2 that
+%    disjointly categorizes anything could have at most one instance. No
+%    conjecture below mentions subordination, so nothing proved here relied on
+%    it. Now existential, matching the paper and mlt_star.als.
+%
+%  - the formulae of t1_basetypeUnique and t2_powertypeUnique were interchanged
+%    with respect to their names and comments. The formulae have been swapped so
+%    that each matches its name; both were and remain provable, so the reports
+%    in tptp/reports remain valid evidence, but each now corresponds to the
+%    other conjecture's formula.
+%
 
 %%%%% Top fragment of MLT-star
 
@@ -127,11 +142,13 @@ fof(a11_categorizationDef, axiom, (
 	)).
 
 % Subordination definition
+% t1 is subordinate to t2 iff every instance of t1 proper specializes SOME
+% instance of t2, as in the ER 2017 paper and in mlt_star.als.
 fof(a12_subordinationDef, axiom, (
 	![T1,T2] :
 	(isSubordinateTo(T1,T2) <=> (
 			type_(T1) & type_(T2) & 
-			![T3,T4]:( (iof(T3,T1)&iof(T4,T2))=>properSpecializes(T3,T4)))
+			![T3]:( iof(T3,T1) => ?[T4]:(iof(T4,T2)&properSpecializes(T3,T4))))
 	) 
 	)).
 
@@ -177,13 +194,13 @@ fof(a15_sotConstantDef,axiom,(
 % The basetype T is unique given a (Cardelli) powertype P
 fof(t1_basetypeUnique, conjecture, (
 	![P,T] :
-	(isPowertypeOf(P,T) => ~?[P_]:((~(P_=P))&(isPowertypeOf(P_,T))))  
+	(isPowertypeOf(P,T) => ~?[T_]:((~(T_=T))&(isPowertypeOf(P,T_))))  
 )).
 
 % The powertype P is unique given a basetype T
 fof(t2_powertypeUnique, conjecture, (
 	![P,T] :
-	(isPowertypeOf(P,T) => ~?[T_]:((~(T_=T))&(isPowertypeOf(P,T_))))  
+	(isPowertypeOf(P,T) => ~?[P_]:((~(P_=P))&(isPowertypeOf(P_,T))))  
 )).
 
 % If a type t1 specializes a type t2 then the (Cardelli) powertype of t1

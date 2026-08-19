@@ -6,9 +6,9 @@ import MLTStar.Basic
 The conjectures `t1_basetypeUnique`, `t2_powertypeUnique`, `t3`, `t4`, `t5` and
 `powertypeNotFirstOrder` of `tptp/mlt-star.p`, verified in Lean.
 
-The TPTP file's prose comments on `t1` and `t2` are swapped with respect to the
-formulae they annotate; the formulae are transcribed here as written, and the
-doc-strings describe what is actually proved.
+`t1` and `t2` had their formulae interchanged with respect to their names in
+`tptp/mlt-star.p`; that has been corrected there.  Both are proved here, so the
+Lean statements were unaffected either way.
 -/
 
 namespace MLTStar
