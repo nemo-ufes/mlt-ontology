@@ -1,8 +1,13 @@
 name = "mltStar"
-defaultTargets = ["MLTStar"]
+defaultTargets = ["MLTStar", "Experiments"]
 
 # The formalisation depends on nothing but Lean 4 core: no Mathlib, no Batteries.
 # `lake build` therefore needs no network access beyond fetching the toolchain.
 
 [[lean_lib]]
 name = "MLTStar"
+
+# Alternative axiomatisations, kept out of the main development. Experiments
+# import MLTStar; nothing in MLTStar imports Experiments.
+[[lean_lib]]
+name = "Experiments"

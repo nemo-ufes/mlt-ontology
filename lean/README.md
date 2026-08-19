@@ -48,6 +48,7 @@ LEAN_PATH=.lake/build/lib/lean lean scripts/AxiomAudit.lean
 | `INSIGHTS.md` | What the encoding showed that the Alloy and TPTP specifications did not |
 | `scripts/AxiomAudit.lean` | Reports, per result, which axioms its proof term actually reaches |
 | `derivation-graph.html` | The derivation graph drawn from that report |
+| `Experiments/NoConstants.lean` | An alternative axiomatisation replacing `a13`–`a15`; see below |
 
 ## How the encoding is organised
 
@@ -287,3 +288,35 @@ That is exactly the phenomenon MLT* was introduced to accommodate.
 2. Almeida, J. P. A., Fonseca, C. M., Carvalho, V. A.: *A Comprehensive Formal
    Theory for Multi-level Conceptual Modeling*. ER 2017.
    <https://doi.org/10.1007/978-3-319-69904-2_2>
+
+## Experiments
+
+`Experiments/` holds alternative axiomatisations, built as a separate Lake
+library. `Experiments` imports `MLTStar`; nothing in `MLTStar` imports
+`Experiments`, so the main development is unaffected by anything here.
+
+### `NoConstants.lean` — replacing `a13`–`a15`
+
+The audit makes the constants the load-bearing axiom, which invites the
+question of what would have to replace them if we still wanted ordered types and
+basic types as their topmost types. `Constants` turns out to bundle two
+different jobs, and separating them is the whole answer:
+
+* a **seed** — `Seeded`: a type of all individuals exists;
+* a **successor** — `BasicPowertypeClosed`: every basic type has a Cardelli
+  powertype.
+
+What the file establishes:
+
+| | |
+| --- | --- |
+| With neither | `Collapse` — a three-element model of `a9` and `a4` where no type has exactly the individuals as instances, so `BasicType` is empty and *every* type is orderless |
+| `a4` alone | already forces an individual on any non-empty domain (`exists_individual_of_grounded`), so that much of `a13` was never needed |
+| `Seeded` alone | recovers `cIndividual` as a *definition*, unique by `a9`, and gives order one |
+| `Seeded` + closure | generates the tower `tower : Nat → E`, which is injective — so this axiomatisation forces an infinite domain |
+| Together | they **prove** `Constants` (`constantsOfTower`), so everything in `MLTStar/` transfers |
+| Strictness | the four-element model satisfies `Constants` but has no powertype for `cSot` (`Model.not_basicPowertypeClosed`), so the strengthening is real |
+| Consistency | `Chain` — the natural numbers, each level the powertype of the one below, model all four axioms |
+
+The trade is therefore precise: three primitive constants and a finite model, or
+two existence axioms that generate every order and require an infinite one.
