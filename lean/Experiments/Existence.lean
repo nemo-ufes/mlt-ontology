@@ -270,6 +270,34 @@ theorem orderlessType_sing [SingletonClosed E] {x : E} (h : OrderlessType x) :
     let ⟨b, hb, hib⟩ := orderedType_sing_iff.mp ho
     h.2 (orderedType_of_iof_basicType hb hib h.1)⟩
 
+/-! ### 8.5 Singletons give powertypes, in one case
+
+The base theory never asserts that any powertype exists (`IsPowertypeOf` is a
+defined relation), and `Model.no_powertype_of_cSot` shows one can genuinely be
+missing. Singletons supply them in the narrowest case: a type with exactly one
+instance has only itself as a specialization, so its powertype is its own
+singleton.
+
+This is why `Chain` is simultaneously singleton-closed and powertype-closed —
+there every type has exactly one instance, so the two operations coincide. -/
+
+theorem isPowertypeOf_sing_of_unique [Extensional E] [SingletonClosed E] {t x : E}
+    (h : ∀ y, iof y t ↔ y = x) : IsPowertypeOf (sing t) t := by
+  have htype : IsType t := ⟨x, (h x).mpr rfl⟩
+  refine ⟨sing_isType t, fun s => ?_⟩
+  constructor
+  · intro hs
+    have hst : s = t := (iof_sing_iff t s).mp hs
+    subst hst
+    exact Specializes.refl htype
+  · intro hs
+    obtain ⟨y, hy⟩ := hs.1
+    have hx : iof x s := (h y).mp (hs.2 y hy) ▸ hy
+    have : s = t :=
+      typeExtensionality hs.1 htype fun z =>
+        ⟨fun hz => (h z).mpr ((h z).mp (hs.2 z hz)), fun hz => (h z).mp hz ▸ hx⟩
+    exact this ▸ iof_self_sing t
+
 /-! ### 8.3 Singletons force an infinite domain
 
 Iterating the singleton on an individual gives a chain that never repeats, since
