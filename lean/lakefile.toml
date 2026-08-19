@@ -1,0 +1,8 @@
+name = "mltStar"
+defaultTargets = ["MLTStar"]
+
+# The formalisation depends on nothing but Lean 4 core: no Mathlib, no Batteries.
+# `lake build` therefore needs no network access beyond fetching the toolchain.
+
+[[lean_lib]]
+name = "MLTStar"

@@ -19,6 +19,12 @@ In addition to the Alloy specifications, a specification in first-order logics i
 * [tptp/mlt-star.p](tptp/mlt-star.p) - MLT* formalization in TPTP syntax;
 * [tptp/reports](tptp/reports) - Reports on automated proofs from [System on TPTP](http://www.tptp.org/cgi-bin/SystemOnTPTP).
 
+Finally, there is a machine-checked encoding of MLT* in the [Lean 4](https://lean-lang.org) proof assistant:
+
+* [lean/](lean) - MLT* in Lean 4, with proofs of every conjecture of [tptp/mlt-star.p](tptp/mlt-star.p), the stratification notions (basic, ordered and orderless types) of [mlt_star.als](mlt_star.als), and an explicit finite model establishing consistency. See [lean/README.md](lean/README.md).
+
+Where the Alloy specifications validate the theory within a bounded scope and the TPTP specification relies on external automated provers, the Lean development carries proof terms that are checked by the Lean kernel. It depends only on Lean 4 core — no Mathlib — and is built with `cd lean && lake build`.
+
 For further information see:
 1. Carvalho, V. A., Almeida, J. P. A.: Toward a well-founded theory for multi-level conceptual modeling. Software & Systems Modeling, Springer Berlin Heidelberg, 2016. https://doi.org/10.1007/s10270-016-0538-9
 2. Almeida, J. P. A., Fonseca, C. M., Carvalho, V. A., A Comprehensive Formal Theory for Multi-level Conceptual Modeling. In: 36th International Conference on Conceptual Modeling (ER 2017), 2017. https://doi.org/10.1007/978-3-319-69904-2_2
