@@ -1,0 +1,233 @@
+<title>MLT* Derivation Graph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+:root {
+  --paper:#F4F5F7; --surface:#FFFFFF; --sunk:#EDEFF3;
+  --ink:#171A21; --muted:#5C6473; --faint:#868D9B; --rule:#DFE3E9;
+  --a9:#0E6E6A; --a4:#9C6A12; --a13:#3F4EA8; --def:#98A0AE;
+  --a9-bg:#0E6E6A14; --a4-bg:#9C6A1214; --a13-bg:#3F4EA814;
+  --edge:#C3C9D4; --edge-root:#AEB6C4;
+  --shadow:0 1px 2px #171A210D, 0 8px 24px #171A2108;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:#101219; --surface:#191C24; --sunk:#14171E;
+    --ink:#E7E9EF; --muted:#99A1B0; --faint:#727A88; --rule:#2A2E39;
+    --a9:#4FC9BD; --a4:#E3AC45; --a13:#8E99F0; --def:#5E6675;
+    --a9-bg:#4FC9BD1A; --a4-bg:#E3AC451A; --a13-bg:#8E99F01A;
+    --edge:#343A47; --edge-root:#434A59;
+    --shadow:0 1px 2px #00000040, 0 8px 24px #00000030;
+  }
+}
+:root[data-theme="dark"] {
+  --paper:#101219; --surface:#191C24; --sunk:#14171E;
+  --ink:#E7E9EF; --muted:#99A1B0; --faint:#727A88; --rule:#2A2E39;
+  --a9:#4FC9BD; --a4:#E3AC45; --a13:#8E99F0; --def:#5E6675;
+  --a9-bg:#4FC9BD1A; --a4-bg:#E3AC451A; --a13-bg:#8E99F01A;
+  --edge:#343A47; --edge-root:#434A59;
+  --shadow:0 1px 2px #00000040, 0 8px 24px #00000030;
+}
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:Newsreader,Georgia,"Times New Roman",serif;
+  font-size:17.5px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+.wrap { max-width:1160px; margin:0 auto; padding:clamp(2rem,5vw,4.5rem) clamp(1.1rem,4vw,2.5rem) 5rem; }
+.col { max-width:64ch; }
+h1,h2,h3 { text-wrap:balance; margin:0; font-weight:500; letter-spacing:-.012em; }
+h1 { font-size:clamp(2.1rem,5.2vw,3.1rem); line-height:1.1; }
+h2 { font-size:clamp(1.35rem,2.6vw,1.72rem); line-height:1.2; }
+h3 { font-size:1.06rem; }
+p { margin:0; }
+code, pre, .mono { font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; }
+code { font-size:.86em; background:var(--sunk); padding:.1em .34em; border-radius:3px; }
+.eyebrow {
+  font-family:"IBM Plex Mono",monospace; font-size:.685rem; font-weight:500;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--faint); margin:0 0 1.1rem;
+}
+.lede { font-size:1.19rem; color:var(--muted); margin-top:1.05rem; }
+.meta {
+  font-family:"IBM Plex Mono",monospace; font-size:.735rem; color:var(--faint);
+  margin-top:1.9rem; padding-top:1rem; border-top:1px solid var(--rule); line-height:1.85;
+}
+section { margin-top:clamp(3.2rem,7vw,5rem); }
+.sec-head { display:flex; flex-direction:column; gap:.55rem; margin-bottom:1.9rem; }
+.sec-head p { color:var(--muted); max-width:64ch; }
+
+/* axiom cards */
+.cards { display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(272px,1fr)); }
+.card {
+  background:var(--surface); border:1px solid var(--rule); border-radius:9px;
+  padding:1.25rem 1.3rem 1.15rem; box-shadow:var(--shadow);
+  display:flex; flex-direction:column; gap:.8rem; border-top:3px solid var(--k);
+}
+.c-a9 { --k:var(--a9); } .c-a4 { --k:var(--a4); } .c-a13 { --k:var(--a13); }
+.card header { display:flex; align-items:baseline; gap:.6rem; }
+.card-tag {
+  font-family:"IBM Plex Mono",monospace; font-size:.7rem; font-weight:600; letter-spacing:.05em;
+  color:var(--k); background:var(--k-bg); padding:.17em .48em; border-radius:3px;
+}
+.c-a9 { --k-bg:var(--a9-bg); } .c-a4 { --k-bg:var(--a4-bg); } .c-a13 { --k-bg:var(--a13-bg); }
+.sig {
+  margin:0; font-size:.715rem; line-height:1.62; color:var(--muted); white-space:pre;
+  overflow-x:auto; background:var(--sunk); padding:.7rem .78rem; border-radius:5px;
+}
+.gloss { font-size:.95rem; color:var(--ink); }
+.tally { font-size:.83rem; color:var(--faint); margin-top:auto; padding-top:.2rem; }
+.tally strong { color:var(--k); font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:.95rem; }
+
+/* graph */
+.legend { display:flex; flex-wrap:wrap; gap:.4rem 1.35rem; margin-bottom:1.05rem;
+  font-family:"IBM Plex Mono",monospace; font-size:.715rem; color:var(--muted); }
+.legend span { display:inline-flex; align-items:center; gap:.42rem; }
+.legend i { width:11px; height:11px; border-radius:2px; display:inline-block; }
+.plot {
+  background:var(--surface); border:1px solid var(--rule); border-radius:9px;
+  box-shadow:var(--shadow); overflow-x:auto; padding:1.4rem;
+}
+.plot svg { display:block; }
+.edges path { fill:none; stroke:var(--edge); stroke-width:1.1; }
+.edges .e-root { stroke:var(--edge-root); stroke-dasharray:3 3; }
+.node text { font-family:"IBM Plex Mono",monospace; font-size:11px; fill:var(--ink); }
+.node .box { fill:var(--sunk); stroke:var(--rule); stroke-width:1; }
+.s-a9 { fill:var(--a9); } .s-a4 { fill:var(--a4); }
+.s-a13 { fill:var(--a13); } .s-def { fill:var(--def); }
+.root rect { stroke:none; }
+.r-a9 rect { fill:var(--a9); } .r-a4 rect { fill:var(--a4); }
+.r-a13 rect { fill:var(--a13); } .r-def rect { fill:var(--def); }
+.root text { fill:var(--surface); font-weight:600; }
+.scroll-hint { font-family:"IBM Plex Mono",monospace; font-size:.7rem; color:var(--faint); margin-top:.8rem; }
+
+/* readings */
+.reads { display:grid; gap:1.6rem 2.6rem; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); }
+.read h3 { margin-bottom:.4rem; }
+.read p { color:var(--muted); font-size:.98rem; }
+.read .n { font-family:"IBM Plex Mono",monospace; font-size:1.55rem; font-weight:600;
+  color:var(--ink); display:block; line-height:1.1; margin-bottom:.42rem; font-variant-numeric:tabular-nums; }
+
+/* table */
+.tablewrap { background:var(--surface); border:1px solid var(--rule); border-radius:9px;
+  box-shadow:var(--shadow); overflow-x:auto; }
+table { border-collapse:collapse; width:100%; font-size:.83rem; }
+th, td { text-align:left; padding:.42rem 1.3rem; }
+tr.grp th { padding:1.25rem 1.3rem .5rem; border-bottom:1px solid var(--rule); }
+tr.grp:first-child th { padding-top:1rem; }
+.grp-n { font-family:"IBM Plex Mono",monospace; font-size:.78rem; font-weight:600;
+  letter-spacing:.03em; color:var(--ink); margin-right:.75rem; }
+.grp-d { font-size:.85rem; color:var(--faint); font-weight:400; }
+td.id { font-family:"IBM Plex Mono",monospace; font-size:.775rem; color:var(--ink); }
+td.ax { width:1%; white-space:nowrap; text-align:right; }
+tbody tr:not(.grp):hover { background:var(--sunk); }
+.chip { font-family:"IBM Plex Mono",monospace; font-size:.665rem; font-weight:500;
+  padding:.15em .42em; border-radius:3px; margin-left:.28rem; display:inline-block; }
+.chip-a9 { color:var(--a9); background:var(--a9-bg); }
+.chip-a4 { color:var(--a4); background:var(--a4-bg); }
+.chip-a13 { color:var(--a13); background:var(--a13-bg); }
+.chip-def { color:var(--faint); }
+:focus-visible { outline:2px solid var(--a13); outline-offset:2px; }
+@media (prefers-reduced-motion:reduce) { * { transition:none !important; animation:none !important; } }
+</style>
+
+<div class="wrap">
+<header class="col">
+  <p class="eyebrow">MLT* in Lean 4</p>
+  <h1>What rests on what</h1>
+  <p class="lede">Three non-definitional axioms carry the whole formalisation of MLT*.
+  This is the derivation graph they generate — read off the proof terms, not from the prose.</p>
+  <p class="meta">Extracted by <code>lean/scripts/AxiomAudit.lean</code>, which walks every proof
+  term’s constant dependencies and takes the transitive closure. Declarations Lean generates —
+  recursors, equation lemmas, <code>sizeOf</code> specs — carry no source range and are excluded;
+  the 114 below are the hand-written ones.<br>
+  114 results · 6 derivation layers · <code>nemo-ufes/mlt-ontology</code>, branch <code>claude/mlt-encoding-lean-0m9yge</code></p>
+</header>
+
+<section>
+  <div class="sec-head col">
+    <h2>The three axioms</h2>
+    <p>Everything the TPTP file states as a <em>definitional</em> axiom is a Lean <code>def</code>,
+    and definitions cannot introduce inconsistency. What is left over is this.</p>
+  </div>
+  <div class="cards"><article class="card c-a9">
+   <header><span class="card-tag">a9</span><h3>Extensional</h3></header>
+   <pre class="sig">∀ t₁ t₂, IsType t₁ → IsType t₂ →
+  (∀ x, iof x t₁ ↔ iof x t₂) → t₁ = t₂</pre>
+   <p class="gloss">Two types with the same instances are the same type.</p>
+   <p class="tally"><strong>15</strong> of 114 results rest on it</p>
+ </article><article class="card c-a4">
+   <header><span class="card-tag">a4</span><h3>Grounded</h3></header>
+   <pre class="sig">∀ S : E → Prop, (∃ y, S y) → (∀ y, S y → IsType y) →
+  ∃ y, S y ∧ ∃ z, iof z y ∧ ¬ S z</pre>
+   <p class="gloss">No non-empty class of types is closed under instantiation.</p>
+   <p class="tally"><strong>6</strong> of 114 results rest on it</p>
+ </article><article class="card c-a13">
+   <header><span class="card-tag">a13–a15</span><h3>Constants</h3></header>
+   <pre class="sig">∀ x, iof x cIndividual ↔ Individual x
+∀ x, iof x cFot ↔ FirstOrderType x
+∀ x, iof x cSot ↔ SecondOrderType x</pre>
+   <p class="gloss">The type of individuals, of first-order types, of second-order types.</p>
+   <p class="tally"><strong>44</strong> of 114 results rest on it</p>
+ </article></div>
+</section>
+
+<section>
+  <div class="sec-head col">
+    <h2>The derivation graph</h2>
+    <p>Layers run left to right in order of derivation depth. An edge means the proof term of the
+    right-hand result mentions the left-hand one. A result is joined to an axiom only where that
+    axiom first enters its derivation — so a node’s colour bar names every axiom beneath it,
+    however far down.</p>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--a9)"></i>a9 &nbsp;extensionality</span>
+    <span><i style="background:var(--a4)"></i>a4 &nbsp;grounding</span>
+    <span><i style="background:var(--a13)"></i>a13–a15 &nbsp;constants</span>
+    <span><i style="background:var(--def)"></i>no axioms — definitions alone</span>
+  </div>
+  <div class="plot"><svg viewBox="0 0 1667 844" width="1667" height="844" role="img" aria-label="Derivation graph of the MLT* formalisation"><g class="edges"><path class="e-root" d="M145,488 C178,488 186,826 219,826"/><path class="e-root" d="M145,488 C178,488 186,511 219,511"/><path class="e-root" d="M145,398 C178,398 186,286 219,286"/><path class="e" d="M523,511 C556,511 564,466 597,466"/><path class="e" d="M523,286 C556,286 564,466 597,466"/><path class="e-root" d="M145,354 C178,354 186,16 219,16"/><path class="e-root" d="M145,488 C178,488 186,376 219,376"/><path class="e-root" d="M145,398 C178,398 186,196 219,196"/><path class="e" d="M523,286 C556,286 564,331 597,331"/><path class="e" d="M523,511 C556,511 564,646 597,646"/><path class="e" d="M523,376 C556,376 564,421 597,421"/><path class="e" d="M523,286 C556,286 564,151 597,151"/><path class="e" d="M523,376 C556,376 564,511 597,511"/><path class="e-root" d="M145,444 C178,444 186,241 219,241"/><path class="e" d="M523,241 C556,241 564,241 597,241"/><path class="e" d="M895,241 C928,241 935,398 969,398"/><path class="e" d="M895,241 C928,241 935,354 969,354"/><path class="e" d="M1193,398 C1227,398 1234,398 1267,398"/><path class="e-root" d="M145,398 C349,398 394,286 597,286"/><path class="e" d="M523,241 C556,241 564,286 597,286"/><path class="e-root" d="M145,398 C650,398 762,444 1267,444"/><path class="e" d="M1193,398 C1227,398 1234,444 1267,444"/><path class="e-root" d="M145,488 C178,488 186,601 219,601"/><path class="e-root" d="M145,488 C178,488 186,646 219,646"/><path class="e" d="M523,601 C556,601 564,556 597,556"/><path class="e-root" d="M145,444 C349,444 394,556 597,556"/><path class="e" d="M523,601 C556,601 564,601 597,601"/><path class="e-root" d="M145,444 C349,444 394,601 597,601"/><path class="e-root" d="M145,488 C178,488 186,691 219,691"/><path class="e-root" d="M145,488 C178,488 186,781 219,781"/><path class="e" d="M523,691 C556,691 564,691 597,691"/><path class="e" d="M523,601 C556,601 564,736 597,736"/><path class="e" d="M523,781 C556,781 564,736 597,736"/><path class="e-root" d="M145,444 C178,444 186,151 219,151"/><path class="e-root" d="M145,444 C178,444 186,331 219,331"/><path class="e-root" d="M145,398 C516,398 598,444 969,444"/><path class="e" d="M895,241 C928,241 935,444 969,444"/><path class="e" d="M523,151 C724,151 768,444 969,444"/><path class="e-root" d="M145,488 C178,488 186,736 219,736"/><path class="e-root" d="M145,488 C178,488 186,556 219,556"/><path class="e" d="M895,421 C928,421 935,534 969,534"/><path class="e" d="M895,151 C928,151 935,308 969,308"/><path class="e-root" d="M145,354 C178,354 186,61 219,61"/><path class="e" d="M523,61 C556,61 564,106 597,106"/><path class="e" d="M523,61 C556,61 564,196 597,196"/><path class="e" d="M523,241 C556,241 564,376 597,376"/><path class="e" d="M895,376 C928,376 935,488 969,488"/><path class="e-root" d="M145,398 C178,398 186,106 219,106"/><path class="e-root" d="M145,488 C178,488 186,421 219,421"/><path class="e-root" d="M145,488 C178,488 186,466 219,466"/><path class="e" d="M1193,354 C1340,354 1373,421 1519,421"/><path class="e" d="M1445,398 C1479,398 1486,421 1519,421"/></g><g class="node root r-a9"><rect x="0" y="382" rx="6" width="145" height="32"/><text x="13" y="402">a9  extensionality</text></g><g class="node root r-a4"><rect x="0" y="338" rx="6" width="145" height="32"/><text x="13" y="358">a4  grounding</text></g><g class="node root r-a13"><rect x="0" y="428" rx="6" width="145" height="32"/><text x="13" y="448">a13–a15  constants</text></g><g class="node root r-def"><rect x="0" y="472" rx="6" width="145" height="32"/><text x="13" y="492">definitions only</text></g><g class="node"><rect class="box" x="219" y="810" rx="5" width="304" height="32"/><rect class="s-def" x="219" y="810" width="4" height="32.0"/><text x="232" y="830">typesAndIndividualsPartitionEntity</text></g><g class="node"><rect class="box" x="219" y="495" rx="5" width="304" height="32"/><rect class="s-def" x="219" y="495" width="4" height="32.0"/><text x="232" y="515">Specializes.trans</text></g><g class="node"><rect class="box" x="219" y="270" rx="5" width="304" height="32"/><rect class="s-a9" x="219" y="270" width="4" height="32.0"/><text x="232" y="290">Specializes.antisymm</text></g><g class="node"><rect class="box" x="597" y="450" rx="5" width="297" height="32"/><rect class="s-a9" x="597" y="450" width="4" height="32.0"/><text x="610" y="470">ProperSpecializes.trans</text></g><g class="node"><rect class="box" x="219" y="0" rx="5" width="304" height="32"/><rect class="s-a4" x="219" y="0" width="4" height="32.0"/><text x="232" y="20">exists_individual_reachable</text></g><g class="node"><rect class="box" x="219" y="360" rx="5" width="304" height="32"/><rect class="s-def" x="219" y="360" width="4" height="32.0"/><text x="232" y="380">IsPowertypeOf.iof_base</text></g><g class="node"><rect class="box" x="219" y="180" rx="5" width="304" height="32"/><rect class="s-a9" x="219" y="180" width="4" height="32.0"/><text x="232" y="200">t1_basetypeUnique</text></g><g class="node"><rect class="box" x="597" y="315" rx="5" width="297" height="32"/><rect class="s-a9" x="597" y="315" width="4" height="32.0"/><text x="610" y="335">t2_powertypeUnique</text></g><g class="node"><rect class="box" x="597" y="630" rx="5" width="297" height="32"/><rect class="s-def" x="597" y="630" width="4" height="32.0"/><text x="610" y="650">t3</text></g><g class="node"><rect class="box" x="597" y="405" rx="5" width="297" height="32"/><rect class="s-def" x="597" y="405" width="4" height="32.0"/><text x="610" y="425">t4</text></g><g class="node"><rect class="box" x="597" y="135" rx="5" width="297" height="32"/><rect class="s-a9" x="597" y="135" width="4" height="32.0"/><text x="610" y="155">t5</text></g><g class="node"><rect class="box" x="597" y="495" rx="5" width="297" height="32"/><rect class="s-def" x="597" y="495" width="4" height="32.0"/><text x="610" y="515">powertypeNotFirstOrder</text></g><g class="node"><rect class="box" x="219" y="225" rx="5" width="304" height="32"/><rect class="s-a13" x="219" y="225" width="4" height="32.0"/><text x="232" y="245">exists_individual</text></g><g class="node"><rect class="box" x="597" y="225" rx="5" width="297" height="32"/><rect class="s-a13" x="597" y="225" width="4" height="32.0"/><text x="610" y="245">cIndividual_firstOrderType</text></g><g class="node"><rect class="box" x="969" y="382" rx="5" width="225" height="32"/><rect class="s-a13" x="969" y="382" width="4" height="32.0"/><text x="982" y="402">cFot_secondOrderType</text></g><g class="node"><rect class="box" x="969" y="338" rx="5" width="225" height="32"/><rect class="s-a13" x="969" y="338" width="4" height="32.0"/><text x="982" y="358">cFot_isPowertypeOf_cIndividual</text></g><g class="node"><rect class="box" x="1267" y="382" rx="5" width="178" height="32"/><rect class="s-a13" x="1267" y="382" width="4" height="32.0"/><text x="1280" y="402">cSot_isPowertypeOf_cFot</text></g><g class="node"><rect class="box" x="597" y="270" rx="5" width="297" height="32"/><rect class="s-a9" x="597" y="270" width="4" height="16.0"/><rect class="s-a13" x="597" y="286" width="4" height="16.0"/><text x="610" y="290">eq_cIndividual</text></g><g class="node"><rect class="box" x="1267" y="428" rx="5" width="178" height="32"/><rect class="s-a9" x="1267" y="428" width="4" height="16.0"/><rect class="s-a13" x="1267" y="444" width="4" height="16.0"/><text x="1280" y="448">eq_cSot</text></g><g class="node"><rect class="box" x="219" y="585" rx="5" width="304" height="32"/><rect class="s-def" x="219" y="585" width="4" height="32.0"/><text x="232" y="605">not_firstOrderType_and_secondOrderType</text></g><g class="node"><rect class="box" x="219" y="630" rx="5" width="304" height="32"/><rect class="s-def" x="219" y="630" width="4" height="32.0"/><text x="232" y="650">ap1</text></g><g class="node"><rect class="box" x="597" y="540" rx="5" width="297" height="32"/><rect class="s-a13" x="597" y="540" width="4" height="32.0"/><text x="610" y="560">ap2</text></g><g class="node"><rect class="box" x="597" y="585" rx="5" width="297" height="32"/><rect class="s-a13" x="597" y="585" width="4" height="32.0"/><text x="610" y="605">ap3</text></g><g class="node"><rect class="box" x="219" y="675" rx="5" width="304" height="32"/><rect class="s-def" x="219" y="675" width="4" height="32.0"/><text x="232" y="695">firstOrderType_of_specializes</text></g><g class="node"><rect class="box" x="219" y="765" rx="5" width="304" height="32"/><rect class="s-def" x="219" y="765" width="4" height="32.0"/><text x="232" y="785">secondOrderType_of_specializes</text></g><g class="node"><rect class="box" x="597" y="675" rx="5" width="297" height="32"/><rect class="s-def" x="597" y="675" width="4" height="32.0"/><text x="610" y="695">IsPowertypeOf.secondOrderType</text></g><g class="node"><rect class="box" x="597" y="720" rx="5" width="297" height="32"/><rect class="s-def" x="597" y="720" width="4" height="32.0"/><text x="610" y="740">not_specializes_of_firstOrder_secondOrder</text></g><g class="node"><rect class="box" x="219" y="135" rx="5" width="304" height="32"/><rect class="s-a13" x="219" y="135" width="4" height="32.0"/><text x="232" y="155">firstOrderType_iff_specializes_cIndividual</text></g><g class="node"><rect class="box" x="219" y="315" rx="5" width="304" height="32"/><rect class="s-a13" x="219" y="315" width="4" height="32.0"/><text x="232" y="335">secondOrderType_iff_specializes_cFot</text></g><g class="node"><rect class="box" x="969" y="428" rx="5" width="225" height="32"/><rect class="s-a9" x="969" y="428" width="4" height="16.0"/><rect class="s-a13" x="969" y="444" width="4" height="16.0"/><text x="982" y="448">IsPowertypeOf.eq_cFot</text></g><g class="node"><rect class="box" x="219" y="720" rx="5" width="304" height="32"/><rect class="s-def" x="219" y="720" width="4" height="32.0"/><text x="232" y="740">categorizes_iff</text></g><g class="node"><rect class="box" x="219" y="540" rx="5" width="304" height="32"/><rect class="s-def" x="219" y="540" width="4" height="32.0"/><text x="232" y="560">Partitions.existsUnique</text></g><g class="node"><rect class="box" x="969" y="518" rx="5" width="225" height="32"/><rect class="s-def" x="969" y="518" width="4" height="32.0"/><text x="982" y="538">IsPowertypeOf.not_categorizes</text></g><g class="node"><rect class="box" x="969" y="292" rx="5" width="225" height="32"/><rect class="s-a9" x="969" y="292" width="4" height="32.0"/><text x="982" y="312">Partitions.eq_of_specializes</text></g><g class="node"><rect class="box" x="219" y="45" rx="5" width="304" height="32"/><rect class="s-a4" x="219" y="45" width="4" height="32.0"/><text x="232" y="65">not_all_instances_specialize</text></g><g class="node"><rect class="box" x="597" y="90" rx="5" width="297" height="32"/><rect class="s-a4" x="597" y="90" width="4" height="32.0"/><text x="610" y="110">IsPowertypeOf.ne</text></g><g class="node"><rect class="box" x="597" y="180" rx="5" width="297" height="32"/><rect class="s-a4" x="597" y="180" width="4" height="32.0"/><text x="610" y="200">not_categorizes_self</text></g><g class="node"><rect class="box" x="597" y="360" rx="5" width="297" height="32"/><rect class="s-a13" x="597" y="360" width="4" height="32.0"/><text x="610" y="380">BasicType.not_universal</text></g><g class="node"><rect class="box" x="969" y="472" rx="5" width="225" height="32"/><rect class="s-a13" x="969" y="472" width="4" height="32.0"/><text x="982" y="492">IsUniversal.orderlessType</text></g><g class="node"><rect class="box" x="219" y="90" rx="5" width="304" height="32"/><rect class="s-a9" x="219" y="90" width="4" height="32.0"/><text x="232" y="110">IsUniversal.unique</text></g><g class="node"><rect class="box" x="219" y="405" rx="5" width="304" height="32"/><rect class="s-def" x="219" y="405" width="4" height="32.0"/><text x="232" y="425">Model.consistent</text></g><g class="node"><rect class="box" x="219" y="450" rx="5" width="304" height="32"/><rect class="s-def" x="219" y="450" width="4" height="32.0"/><text x="232" y="470">Model.no_universal</text></g><g class="node"><rect class="box" x="1519" y="405" rx="5" width="145" height="32"/><rect class="s-a13" x="1519" y="405" width="4" height="32.0"/><text x="1532" y="425">Model.no_orderless</text></g></svg></div>
+  <p class="scroll-hint">Scroll the panel sideways to follow the later layers.</p>
+</section>
+
+<section>
+  <div class="sec-head col"><h2>Three things the graph shows</h2></div>
+  <div class="reads">
+    <div class="read">
+      <h3><span class="n">54 / 114</span>need no axiom at all</h3>
+      <p>Just under half the development follows from the definitions alone — among them
+      <code>t3</code>, <code>t4</code>, <code>powertypeNotFirstOrder</code>, <code>ap1</code>,
+      <code>categorizes_iff</code> and <code>Partitions.existsUnique</code>. Splitting the axioms
+      into separate classes is what makes this visible: a theorem can only use an axiom it names
+      in its own hypotheses.</p>
+    </div>
+    <div class="read">
+      <h3><span class="n">6</span>results use grounding</h3>
+      <p><code>a4</code> is stated in <code>tptp/mlt-star.p</code>, but no conjecture there depends
+      on it, and <code>mlt_star.als</code> assumes the corresponding <code>typeWellFounded</code>
+      fact instead of deriving anything from it. Its whole yield sits in one corner of the graph:
+      grounding on individuals, and the two shapes of circularity it rules out.</p>
+    </div>
+    <div class="read">
+      <h3><span class="n">44</span>rest on the constants</h3>
+      <p>The widest-reaching axiom is the least remarked on. <code>cIndividual</code> alone forces
+      an individual to exist — otherwise nothing would instantiate it, making it an individual —
+      and that single entity forces the chain <code>cIndividual : cFot : cSot</code> and the whole
+      bottom of the stratification.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head col">
+    <h2>Every result</h2>
+    <p>All 114 hand-written theorems, with the axioms each one’s proof term actually
+    reaches. Accessors and the axioms’ own restatements are included, so the counts above are over
+    this whole list. Re-run <code>AxiomAudit.lean</code> to reproduce it.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <caption class="visually-hidden"></caption>
+    <tbody><tr class="grp"><th colspan="2" scope="colgroup"><span class="grp-n">Defs</span><span class="grp-d">The axioms themselves, and their restatements</span></th></tr><tr><td class="id">Constants.cFot_spec</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">Constants.cIndividual_spec</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">Constants.cSot_spec</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">Extensional.typeExtensionality</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">Grounded.grounded</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">grounded</td><td class="ax"><span class="chip chip-a4">a4</span></td></tr><tr><td class="id">typeExtensionality</td><td class="ax"><span class="chip chip-a9">a9</span></td></tr><tr class="grp"><th colspan="2" scope="colgroup"><span class="grp-n">Basic</span><span class="grp-d">Individuals, types, and the order properties of specialization</span></th></tr><tr><td class="id">IsSubordinateTo.isType_left</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">IsSubordinateTo.isType_right</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">IsType.exists_instance</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">ProperSpecializes.asymm</td><td class="ax"><span class="chip chip-a9">a9</span></td></tr><tr><td class="id">ProperSpecializes.irrefl</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">ProperSpecializes.isType_left</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">ProperSpecializes.isType_right</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">ProperSpecializes.ne</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">ProperSpecializes.specializes</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">ProperSpecializes.trans</td><td class="ax"><span class="chip chip-a9">a9</span></td></tr><tr><td class="id">Specializes.antisymm</td><td class="ax"><span class="chip chip-a9">a9</span></td></tr><tr><td class="id">Specializes.isType_left</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">Specializes.isType_right</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">Specializes.refl</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">Specializes.trans</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">exists_individual_reachable</td><td class="ax"><span class="chip chip-a4">a4</span></td></tr><tr><td class="id">individual_iff_not_isType</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">isType_of_iof</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">not_individual_of_isType</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">not_isType_of_individual</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">typesAndIndividualsPartitionEntity</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr class="grp"><th colspan="2" scope="colgroup"><span class="grp-n">Powertype</span><span class="grp-d">The powertype conjectures of <code>tptp/mlt-star.p</code></span></th></tr><tr><td class="id">IsPowertypeOf.iof_base</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">IsPowertypeOf.isType_base</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">IsPowertypeOf.isType_left</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">IsUniversal.specializes</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">powertypeNotFirstOrder</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">t1_basetypeUnique</td><td class="ax"><span class="chip chip-a9">a9</span></td></tr><tr><td class="id">t2_powertypeUnique</td><td class="ax"><span class="chip chip-a9">a9</span></td></tr><tr><td class="id">t3</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">t4</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">t5</td><td class="ax"><span class="chip chip-a9">a9</span></td></tr><tr class="grp"><th colspan="2" scope="colgroup"><span class="grp-n">Constants</span><span class="grp-d">What <code>a13</code>–<code>a15</code> force</span></th></tr><tr><td class="id">IsPowertypeOf.eq_cFot</td><td class="ax"><span class="chip chip-a9">a9</span><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">IsPowertypeOf.eq_cSot</td><td class="ax"><span class="chip chip-a9">a9</span><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cFot_isPowertypeOf_cIndividual</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cFot_isType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cFot_ne_cSot</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cFot_secondOrderType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cIndividual_firstOrderType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cIndividual_isType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cIndividual_ne_cFot</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cIndividual_ne_cSot</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cSot_isPowertypeOf_cFot</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cSot_isType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">eq_cFot</td><td class="ax"><span class="chip chip-a9">a9</span><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">eq_cIndividual</td><td class="ax"><span class="chip chip-a9">a9</span><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">eq_cSot</td><td class="ax"><span class="chip chip-a9">a9</span><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">exists_individual</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">iof_cFot_cSot</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">iof_cFot_iff</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">iof_cIndividual_cFot</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">iof_cIndividual_iff</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">iof_cSot_iff</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">not_firstOrderType_cFot</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">not_firstOrderType_cSot</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">not_iof_cSot_cSot</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">not_secondOrderType_cSot</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr class="grp"><th colspan="2" scope="colgroup"><span class="grp-n">AntiPatterns</span><span class="grp-d">The anti-pattern conjectures</span></th></tr><tr><td class="id">ap1</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">ap2</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">ap3</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">not_firstOrderType_and_secondOrderType</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">not_iof_of_secondOrderType</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">not_specializes_cSot_of_secondOrderType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr class="grp"><th colspan="2" scope="colgroup"><span class="grp-n">Orders</span><span class="grp-d">Order structure — new</span></th></tr><tr><td class="id">FirstOrderType.not_iof_self</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">IsPowertypeOf.secondOrderType</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">SecondOrderType.not_iof_self</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">firstOrderType_iff_specializes_cIndividual</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">firstOrderType_of_specializes</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">not_specializes_of_firstOrder_secondOrder</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">not_specializes_of_secondOrder_firstOrder</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">secondOrderType_iff_specializes_cFot</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">secondOrderType_of_specializes</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr class="grp"><th colspan="2" scope="colgroup"><span class="grp-n">Categorization</span><span class="grp-d">Categorization and partitioning — new</span></th></tr><tr><td class="id">IsPowertypeOf.not_categorizes</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">Partitions.eq_of_specializes</td><td class="ax"><span class="chip chip-a9">a9</span></td></tr><tr><td class="id">Partitions.existsUnique</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">Partitions.not_specializes</td><td class="ax"><span class="chip chip-a9">a9</span></td></tr><tr><td class="id">categorizes_iff</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr class="grp"><th colspan="2" scope="colgroup"><span class="grp-n">Acyclicity</span><span class="grp-d">What <code>a4</code> rules out — new</span></th></tr><tr><td class="id">Categorizes.ne</td><td class="ax"><span class="chip chip-a4">a4</span></td></tr><tr><td class="id">IsPowertypeOf.ne</td><td class="ax"><span class="chip chip-a4">a4</span></td></tr><tr><td class="id">not_all_instances_specialize</td><td class="ax"><span class="chip chip-a4">a4</span></td></tr><tr><td class="id">not_categorizes_self</td><td class="ax"><span class="chip chip-a4">a4</span></td></tr><tr class="grp"><th colspan="2" scope="colgroup"><span class="grp-n">Stratification</span><span class="grp-d">Basic, ordered and orderless types</span></th></tr><tr><td class="id">BasicType.isType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">BasicType.not_universal</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">BasicType.orderedType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">IsUniversal.iof_self</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">IsUniversal.isType</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">IsUniversal.not_firstOrderType</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">IsUniversal.not_secondOrderType</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">IsUniversal.orderlessType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">IsUniversal.unique</td><td class="ax"><span class="chip chip-a9">a9</span></td></tr><tr><td class="id">OrderedType.isType</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">OrderedType.of_specializes</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">cFot_basicType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cFot_orderedType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cIndividual_basicType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cIndividual_orderedType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cSot_basicType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">cSot_orderedType</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">not_orderedType_and_orderlessType</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">orderedType_or_orderlessType</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr class="grp"><th colspan="2" scope="colgroup"><span class="grp-n">Model</span><span class="grp-d">The four-element model</span></th></tr><tr><td class="id">Model.checks</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">Model.consistent</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">Model.grounded</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">Model.instExtensionalW</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">Model.instGroundedW</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">Model.no_orderless</td><td class="ax"><span class="chip chip-a13">a13–a15</span></td></tr><tr><td class="id">Model.no_universal</td><td class="ax"><span class="chip chip-def">—</span></td></tr><tr><td class="id">Model.not_isType_ind</td><td class="ax"><span class="chip chip-def">—</span></td></tr></tbody>
+  </table></div>
+</section>
+</div>
