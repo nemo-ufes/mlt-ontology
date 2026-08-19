@@ -20,6 +20,12 @@ lake build
 
 Lean 4.23.0 is pinned in `lean-toolchain`; `elan` will fetch it automatically.
 
+To audit which axioms each result actually rests on:
+
+```sh
+LEAN_PATH=.lake/build/lib/lean lean scripts/AxiomAudit.lean
+```
+
 ## File map
 
 | File | Contents |
@@ -34,6 +40,8 @@ Lean 4.23.0 is pinned in `lean-toolchain`; `elan` will fetch it automatically.
 | `MLTStar/Acyclicity.lean` | What `a4` rules out: no self-powertype, no self-categorizer |
 | `MLTStar/Stratification.lean` | Basic, ordered and orderless types; the universal type is orderless |
 | `MLTStar/Model.lean` | A four-element model, hence consistency |
+| `scripts/AxiomAudit.lean` | Reports, per result, which axioms its proof term actually reaches |
+| `derivation-graph.html` | The derivation graph drawn from that report |
 
 ## How the encoding is organised
 
@@ -159,12 +167,22 @@ relies on an external prover, this is checked by the Lean kernel.
 3. **`a4` is not needed for any conjecture in the TPTP file.** This is why
    `Extensional` and `Grounded` are separate classes: a theorem can only use an
    axiom it names in its hypotheses, so the statements themselves record the
-   dependency. No theorem in `Powertype.lean` or `AntiPatterns.lean` takes
-   `[Grounded E]`. Sharper still, `t3`, `t4`, `powertypeNotFirstOrder` and `ap1`
-   assume nothing beyond the definitions, and `ap2`/`ap3` need only the constant
-   `cSot`. `a4` earns its place elsewhere: it is what yields
-   `exists_individual_reachable`, the counterpart of the `typeWellFounded` fact
-   that `mlt_star.als` has to assume.
+   dependency. `scripts/AxiomAudit.lean` turns that into a checkable count by
+   walking the proof terms — of the 114 results, exactly **six** reach `a4`, and
+   none of them is a TPTP conjecture:
+
+   | Axiom | Results reaching it |
+   | --- | --- |
+   | none — definitions alone | 54 |
+   | `a9` extensionality | 15 |
+   | `a4` grounding | 6 |
+   | `a13`–`a15` constants | 44 |
+
+   Sharper still, `t3`, `t4`, `powertypeNotFirstOrder` and `ap1` assume nothing
+   beyond the definitions, and `ap2`/`ap3` need only the constant `cSot`. `a4`
+   earns its place elsewhere: it is what yields `exists_individual_reachable`,
+   the counterpart of the `typeWellFounded` fact that `mlt_star.als` has to
+   assume, and the acyclicity results of `Acyclicity.lean`.
 
 ## New theorems
 
