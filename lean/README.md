@@ -49,6 +49,7 @@ LEAN_PATH=.lake/build/lib/lean lean scripts/AxiomAudit.lean
 | `scripts/AxiomAudit.lean` | Reports, per result, which axioms its proof term actually reaches |
 | `derivation-graph.html` | The derivation graph drawn from that report |
 | `Experiments/NoConstants.lean` | An alternative axiomatisation replacing `a13`–`a15`; see below |
+| `Experiments/Designs.lean` | Specialization as a partial order, the powertype as an order embedding, independence of the axioms, and why comprehension is unavailable |
 
 ## How the encoding is organised
 
@@ -335,3 +336,24 @@ it is not a new axiom: `Stratified D 2` and `Constants D` prove each other
 (`constantsOfStratified`, `stratified_of_constants`). `a13`–`a15` *is* bounded
 closure at height two, written out as three constants rather than as a schema,
 which is why the four-element model satisfies it (`Model.stratified_two`).
+
+### `Designs.lean` — alternative shapes for the theory
+
+* **Specialization is a partial order on the types**, not on the entities: on the
+  full domain it is not reflexive, since an individual specializes nothing.
+* **The powertype is an order embedding**: `t3` says it preserves specialization,
+  and `specializes_powertype_iff` shows it reflects it too. `t2` then falls out
+  as injectivity. This suggests presenting MLT* as *a poset of types with a
+  bottom and an injective, fixed-point-free order embedding*, with the orders and
+  basic types derived from its orbit.
+* **The axioms are independent**: `extensional_independent` and
+  `grounded_independent` give models satisfying all but `a9`, and all but `a4`,
+  respectively. With `Collapse` in `NoConstants.lean`, all three are pairwise
+  independent.
+* **Comprehension is unavailable**: `no_comprehension` is Russell's argument on
+  instantiation, and `no_separation_with_universal` shows the usual repair fails
+  once a universal type exists — which is what MLT* was extended to admit. So the
+  powertype is the only type-forming operation the theory can afford, and the
+  poset above cannot be made a lattice.
+
+See `INSIGHTS.md` §9–10 for the discussion and a list of open targets.

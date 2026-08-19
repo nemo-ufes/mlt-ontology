@@ -162,7 +162,34 @@ hypotheses, and `scripts/AxiomAudit.lean` turns "which axioms does this really
 need" into a command. Claims like *no conjecture needs `a4`* stop being
 editorial and become checkable — and stay checkable as the theory grows.
 
-## 7. Two results the existing specifications state only halves of
+## 7. `a13`–`a15` is bounded closure in disguise
+
+The constants look like notational convenience, then like an existence axiom
+(§3). They are really neither. `Experiments/NoConstants.lean` separates the two
+jobs `Constants` does — a **seed** (a type of all individuals exists) and a
+**successor** (basic types have powertypes) — and the second is where the design
+decision lives.
+
+Left unbounded, the successor forces an infinite domain: the tower of basic
+types is injective (`tower_injective`), so `Nat` embeds. Bounded at height `h`,
+finite models return. And the bounded version is not new:
+
+> `Stratified D 2` and `Constants D` prove each other.
+
+`a13`–`a15` *is* bounded closure at height two, written out as three constants
+rather than as a schema. That is why the four-element model of
+`MLTStar/Model.lean` exists at all, and it locates the real choice in the theory:
+fix a height and keep finite models, or let the tower run and lose them. Nothing
+else depends on the answer — the unbounded axioms prove `Constants`, so every
+theorem in `MLTStar/` holds either way.
+
+A corollary worth stating, because the question arises naturally: **no axiom one
+could add restores a finite model.** Adding axioms removes models and never adds
+any, so every extension of the unbounded theory still proves `nat_embeds`,
+inconsistent extensions included. The successor axiom has to be weakened, not
+supplemented.
+
+## 8. Two results the existing specifications state only halves of
 
 > **`categorizes_iff`** — the categorizers of `t` are *exactly* the
 > specializations of the Cardelli powertype of `t` that do not have `t` itself
@@ -178,6 +205,101 @@ specifications state the two halves and never draw the conclusion the name has
 always promised. Neither result needs any axiom.
 
 ---
+
+## 9. Alternative designs
+
+`Experiments/Designs.lean` tests three changes one might want to make. All of
+the following are proved there.
+
+### Specialization belongs on the types
+
+On the full domain `Specializes` is not even reflexive — an individual
+specializes nothing, itself included (`not_specializes_self_of_individual`). On
+the subtype of types it is reflexive, transitive and antisymmetric: a partial
+order. That is a presentational change with no logical cost, and it is what lets
+the next point be stated cleanly.
+
+### The powertype is an order embedding, not merely monotone
+
+`t3` says the powertype *preserves* specialization. It also **reflects** it:
+
+> `specializes_powertype_iff` — `℘t₁ ⊑ ℘t₂ ↔ t₁ ⊑ t₂`.
+
+The proof is two lines, because a base type instantiates its own powertype, so
+`℘t₁ ⊑ ℘t₂` applied at `t₁` already yields `t₁ ⊑ t₂`. No axiom is needed.
+
+This is the most promising direction for a more elegant MLT*. Together with §7,
+the stratification is the orbit of a single operator on a poset:
+
+| MLT* as stated | MLT* as an operator |
+| --- | --- |
+| `a10` + `t1` | `℘` is a well-defined function on types |
+| `t2` | `℘` is injective |
+| `t3` | `℘` is monotone — and in fact an order embedding |
+| `IsPowertypeOf.ne` | `℘` has no fixed point |
+| `a13`–`a15` | the tower `℘ⁿ(⊥)` exists up to height 2 |
+
+So: *a poset of types with a bottom element and an injective, fixed-point-free
+order embedding on it, whose orbit from the bottom is the ordered types.*
+Everything else — orders, basic types, orderless types — is derived. That is a
+much smaller thing to state than the present axiom list, and `powertype_injective`
+shows `t2` falls straight out of the embedding property rather than needing its
+own argument.
+
+### The axioms are independent
+
+Neither `a9` nor `a4` follows from the rest, so nothing is redundant:
+
+* `extensional_independent` — a five-element model of `a4` and the constants with
+  two distinct coextensive types. `Constants` asks only that *some* type has
+  exactly the individuals as instances; with `a9` gone, nothing makes it unique.
+* `grounded_independent` — the four-element model plus a self-supporting type `u`
+  whose only instance is itself. Extensionality and the constants survive
+  untouched, since `u` is neither first- nor second-order; but `{u}` is a
+  non-empty class of types closed under instantiation.
+
+With `Collapse` from `NoConstants.lean` — a model of `a9` and `a4` with no type
+of individuals — all three are pairwise independent.
+
+## 10. Why the theory can afford only the powertype
+
+MLT* is ungenerous about which types exist: the constants, and powertypes. That
+turns out to be forced.
+
+* `no_comprehension` — "every class of entities is the extension of some type" is
+  inconsistent outright. Russell's argument goes through verbatim on
+  instantiation: take the class of entities that do not instantiate themselves.
+* `no_separation_with_universal` — the standard repair fails too. Separation,
+  carving a type out of the instances of an existing type, reproduces the
+  contradiction as soon as a universal type exists.
+
+And a universal type is precisely what MLT* was extended to admit (§5). So the
+theory cannot have comprehension *or* separation, and the powertype is what
+remains. This also explains an absence: there is no meet or join on types, since
+that would need exactly the comprehension the theory cannot have. The poset of
+§9 is a poset, not a lattice, and cannot be made one.
+
+## What could be proved next
+
+Open, in rough order of how much they would clarify:
+
+1. **Where subordination becomes irreflexive.** It is not provable as stated
+   (§5); `a4` constrains instantiation descending, not specialization ascending.
+   Is it irreflexive on *ordered* types? That would give subordination the home
+   it currently lacks.
+2. **A characterisation of orderless types.** A universal type is orderless; is
+   the converse-ish statement provable — that an orderless type must have
+   instances at two or more orders? That would turn "orderless" from a negative
+   definition into a positive one.
+3. **Models at each height.** `Stratified D h` has finite models. Are they
+   classified by their individuals plus a choice of which specializations exist,
+   or is there more freedom?
+4. **Decidability of the ordered fragment.** Basic MLT — everything ordered, no
+   orderless types — looks like it might be decidable, where full MLT* very
+   likely is not.
+5. **Whether `℘` has an adjoint.** `categorizes_iff` (§8) reads like half of a
+   Galois connection between categorization and the powertype. If it is one, the
+   Odell/Cardelli relationship becomes a structural fact rather than a theorem.
 
 ## Reproducing the figures
 
