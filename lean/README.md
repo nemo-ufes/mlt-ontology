@@ -49,7 +49,8 @@ LEAN_PATH=.lake/build/lib/lean lean scripts/AxiomAudit.lean
 | `scripts/AxiomAudit.lean` | Reports, per result, which axioms its proof term actually reaches |
 | `derivation-graph.html` | The derivation graph drawn from that report |
 | `Experiments/NoConstants.lean` | An alternative axiomatisation replacing `a13`–`a15`; see below |
-| `Experiments/Designs.lean` | Specialization as a partial order, the powertype as an order embedding, independence of the axioms, and why comprehension is unavailable |
+| `Experiments/Designs.lean` | Specialization as a partial order, the powertype as an order embedding and right adjoint, independence of the axioms, and why comprehension is unavailable |
+| `Experiments/Subordination.lean` | Why self-subordination is an ascending chain condition, and is refuted by finiteness rather than by order |
 
 ## How the encoding is organised
 
@@ -356,4 +357,19 @@ which is why the four-element model satisfies it (`Model.stratified_two`).
   powertype is the only type-forming operation the theory can afford, and the
   poset above cannot be made a lattice.
 
-See `INSIGHTS.md` §9–10 for the discussion and a list of open targets.
+* **The powertype is a right adjoint**, to "union of instances":
+  `union_powertype` shows union inverts `℘` on its image, and
+  `union_specializes_iff` is the adjunction law `L p ⊑ t ↔ p ⊑ ℘ t` for arbitrary
+  `p` and `t`. Neither needs an axiom. MLT* does not look like it has an
+  adjunction only because it cannot guarantee the unions exist.
+
+### `Subordination.lean` — where irreflexivity comes from
+
+Self-subordination unfolds to "the instances of `t` have no maximal element under
+proper specialization", so irreflexivity is an *ascending* chain condition. `a4`
+constrains instantiation *descending*, and orderedness says nothing about
+ascending chains, so neither helps. What does is finiteness:
+`nat_embeds_of_self_subordinate` shows a self-subordinate type embeds `Nat` into
+its own instances, so subordination is irreflexive in every finite model.
+
+See `INSIGHTS.md` §9–12 for the discussion and the remaining open targets.

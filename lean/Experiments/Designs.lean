@@ -259,4 +259,47 @@ theorem no_separation_with_universal {u : E} (hu : ∀ e : E, iof e u) :
     ⟨fun hp => ((hs s).mp hp).2, fun hn => (hs s).mpr ⟨hu s, hn⟩⟩
   exact (fun hn => hn (hiff.mpr hn)) (fun hp => hiff.mp hp hp)
 
+/-! ## 6. Does the powertype have an adjoint?
+
+`categorizes_iff` reads like half of a Galois connection, so it is worth asking
+whether `℘` is a right adjoint. It is — to "union of instances" — and the reason
+MLT* does not *look* like it has an adjunction is simply that it cannot
+guarantee the unions exist (§5).
+
+`IsUnionOf u p` says `u` collects the instances of the instances of `p`. Where
+such a `u` exists it behaves exactly as a lower adjoint should: it inverts `℘`
+on its image, and the adjunction law holds. -/
+
+/-- `u` is the union of the instances of `p`. -/
+def IsUnionOf (u p : E) : Prop := ∀ x, iof x u ↔ ∃ q, iof q p ∧ iof x q
+
+/-- Union inverts the powertype: the union of `℘t` is `t` itself. -/
+theorem union_powertype [Extensional E] {u p t : E}
+    (hp : IsPowertypeOf p t) (hu : IsUnionOf u p) (hut : IsType u) : u = t :=
+  typeExtensionality hut hp.isType_base fun x =>
+    ⟨fun hx =>
+      let ⟨q, hq, hxq⟩ := (hu x).mp hx
+      ((hp.2 q).mp hq).2 x hxq,
+     fun hx => (hu x).mpr ⟨t, hp.iof_base, hx⟩⟩
+
+/-- The adjunction: `L p ⊑ t ↔ p ⊑ ℘ t`, where `L p` is a union of `p`. This
+is the defining property of a lower adjoint to `℘`, stated for an arbitrary `p`
+and `t` — `p` is *not* assumed to be a powertype, which is what makes it say
+something.
+
+`hq` is needed because an instance of `p` could otherwise be an individual, and
+individuals specialize nothing. -/
+theorem union_specializes_iff {u p t s : E}
+    (hu : IsUnionOf u p) (hut : IsType u) (hpt : IsType p)
+    (hq : ∀ q, iof q p → IsType q) (hs : IsPowertypeOf s t) :
+    Specializes u t ↔ Specializes p s := by
+  constructor
+  · intro h
+    refine ⟨hpt, fun q hqp => (hs.2 q).mpr ⟨hq q hqp, fun x hxq => ?_⟩⟩
+    exact h.2 x ((hu x).mpr ⟨q, hqp, hxq⟩)
+  · intro h
+    refine ⟨hut, fun x hxu => ?_⟩
+    obtain ⟨q, hqp, hxq⟩ := (hu x).mp hxu
+    exact ((hs.2 q).mp (h.2 q hqp)).2 x hxq
+
 end MLTStar.Design

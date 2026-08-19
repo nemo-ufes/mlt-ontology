@@ -279,27 +279,68 @@ remains. This also explains an absence: there is no meet or join on types, since
 that would need exactly the comprehension the theory cannot have. The poset of
 §9 is a poset, not a lattice, and cannot be made one.
 
+## 11. Subordination is bounded by finiteness, not by order
+
+§5 left `IsSubordinateTo t t` unrefuted and guessed that restricting to *ordered*
+types would fix it. `Experiments/Subordination.lean` settles it, and the guess
+was wrong.
+
+Unfolded, self-subordination says exactly that the instances of `t` have **no
+maximal element** under proper specialization (`isSubordinateTo_self_iff`). So
+irreflexivity is an *ascending* chain condition — which is why `a4`, a
+*descending* condition on instantiation, cannot deliver it, and why being
+ordered does not either: orderedness says nothing about ascending chains.
+
+What does bound it is finiteness. A self-subordinate type generates a strictly
+ascending chain of its own instances, and proper specialization is transitive
+and irreflexive, so the chain never repeats:
+
+> `nat_embeds_of_self_subordinate` — a type subordinate to itself embeds `Nat`
+> into its own instances.
+
+Hence subordination is irreflexive in every finite model, `Model.not_isSubordinateTo_self`
+being the concrete case, and any counterexample must be infinite. If irreflexivity
+is wanted outright, the axiom to add is an ascending chain condition on proper
+specialization — not a restriction to ordered types.
+
+## 12. The powertype does have an adjoint
+
+`categorizes_iff` (§8) reads like half a Galois connection, and it is one. The
+lower adjoint is "union of instances":
+
+> `IsUnionOf u p` — `u` collects the instances of the instances of `p`.
+
+Two results in `Experiments/Designs.lean` §6. `union_powertype`: the union of
+`℘t` is `t`, so union inverts the powertype on its image. And the adjunction law
+itself, for arbitrary `p` and `t`:
+
+> `union_specializes_iff` — `L p ⊑ t ↔ p ⊑ ℘ t`.
+
+Neither needs an axiom. So `℘` is a right adjoint, and the Odell/Cardelli
+relationship is structural after all.
+
+The reason MLT* does not *look* like it has an adjunction is that it cannot
+guarantee the unions exist — by §10 it has no comprehension to build them with.
+The adjoint is definable pointwise wherever the union happens to be there, and
+nowhere else. That is the same absence that keeps the poset of types from being
+a lattice, seen from another side.
+
 ## What could be proved next
 
 Open, in rough order of how much they would clarify:
 
-1. **Where subordination becomes irreflexive.** It is not provable as stated
-   (§5); `a4` constrains instantiation descending, not specialization ascending.
-   Is it irreflexive on *ordered* types? That would give subordination the home
-   it currently lacks.
-2. **A characterisation of orderless types.** A universal type is orderless; is
+1. **A characterisation of orderless types.** A universal type is orderless; is
    the converse-ish statement provable — that an orderless type must have
    instances at two or more orders? That would turn "orderless" from a negative
    definition into a positive one.
-3. **Models at each height.** `Stratified D h` has finite models. Are they
+2. **Models at each height.** `Stratified D h` has finite models. Are they
    classified by their individuals plus a choice of which specializations exist,
    or is there more freedom?
-4. **Decidability of the ordered fragment.** Basic MLT — everything ordered, no
+3. **Decidability of the ordered fragment.** Basic MLT — everything ordered, no
    orderless types — looks like it might be decidable, where full MLT* very
    likely is not.
-5. **Whether `℘` has an adjoint.** `categorizes_iff` (§8) reads like half of a
-   Galois connection between categorization and the powertype. If it is one, the
-   Odell/Cardelli relationship becomes a structural fact rather than a theorem.
+4. **Whether the ascending chain condition of §11 has a natural axiomatisation**
+   — one that does not simply assert finiteness.
 
 ## Reproducing the figures
 
