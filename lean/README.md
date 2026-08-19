@@ -29,6 +29,9 @@ Lean 4.23.0 is pinned in `lean-toolchain`; `elan` will fetch it automatically.
 | `MLTStar/Powertype.lean` | The powertype theorems `t1`–`t5` and `powertypeNotFirstOrder` |
 | `MLTStar/Constants.lean` | Consequences of `a13`–`a15`: the chain `cIndividual : cFot : cSot`, their uniqueness, and that they are Cardelli powertypes of one another |
 | `MLTStar/AntiPatterns.lean` | The anti-pattern theorems `ap1`, `ap2`, `ap3` |
+| `MLTStar/Orders.lean` | Order inheritance under specialization; powertypes raise the order; the constants are the tops of their orders |
+| `MLTStar/Categorization.lean` | Characterisation of categorizers; a partition partitions; distinct partitions are incomparable |
+| `MLTStar/Acyclicity.lean` | What `a4` rules out: no self-powertype, no self-categorizer |
 | `MLTStar/Stratification.lean` | Basic, ordered and orderless types; the universal type is orderless |
 | `MLTStar/Model.lean` | A four-element model, hence consistency |
 
@@ -162,6 +165,74 @@ relies on an external prover, this is checked by the Lean kernel.
    `cSot`. `a4` earns its place elsewhere: it is what yields
    `exists_individual_reachable`, the counterpart of the `typeWellFounded` fact
    that `mlt_star.als` has to assume.
+
+## New theorems
+
+Results proved here that neither `mlt_star.als` nor `tptp/mlt-star.p` states.
+
+**Order structure** (`MLTStar/Orders.lean`)
+
+* `IsPowertypeOf.secondOrderType` — the Cardelli powertype of a first-order type
+  is a *second*-order type. Powertypes raise the order by exactly one.
+  `powertypeNotFirstOrder` in the TPTP file is the special case that the
+  powertype is not first-order.
+* `firstOrderType_of_specializes`, `secondOrderType_of_specializes` — order is
+  inherited downwards along specialization, hence
+  `not_specializes_of_firstOrder_secondOrder` and its converse: specialization
+  never crosses orders in either direction.
+* `firstOrderType_iff_specializes_cIndividual` and the second-order analogue —
+  being of order *n* is *the same thing as* specializing the *n*-th constant.
+  `cIndividual` and `cFot` are the tops of their orders.
+* `IsPowertypeOf.eq_cFot`, `IsPowertypeOf.eq_cSot` — `cFot` is *the* powertype of
+  `cIndividual`, not merely one, and likewise for `cSot`.
+* `FirstOrderType.not_iof_self`, `SecondOrderType.not_iof_self`.
+
+**Categorization and partitioning** (`MLTStar/Categorization.lean`)
+
+* `categorizes_iff` — the categorizers of `t` are *exactly* the specializations
+  of the Cardelli powertype of `t` that do not have `t` itself as an instance.
+  `t4` gives one half of one direction of this.
+* `Partitions.existsUnique` — a partition really does partition: every instance
+  of the base type instantiates exactly one instance of the partitioning type.
+  The existing specifications state completeness and disjointness separately and
+  never draw the conclusion the name promises.
+* `Partitions.eq_of_specializes`, `Partitions.not_specializes` — distinct
+  partitions of a type are specialization-incomparable.
+* `IsPowertypeOf.not_categorizes` — a Cardelli powertype never categorizes its
+  own base type.
+
+**What `a4` rules out** (`MLTStar/Acyclicity.lean`)
+
+`a4` is stated in the TPTP file but no conjecture there uses it, and
+`mlt_star.als` assumes the corresponding `typeWellFounded` fact rather than
+deriving anything from it. One lemma does the work:
+
+* `not_all_instances_specialize` — no type has all of its instances specializing
+  it. Such a type would be self-supporting: the class of its instances would be
+  closed under instantiation, which is exactly what `a4` forbids.
+
+Two shapes of circularity follow:
+
+* `IsPowertypeOf.ne` — no type is its own Cardelli powertype;
+* `not_categorizes_self`, `Categorizes.ne` — no type categorizes itself.
+
+**The universal type** (`MLTStar/Stratification.lean`)
+
+* `IsUniversal.unique` — there is at most one.
+* `IsUniversal.not_firstOrderType`, `IsUniversal.not_secondOrderType` — it has no
+  order at all, not merely "not the order of a basic type".
+
+**Independence** (`MLTStar/Model.lean`)
+
+* `no_universal`, `no_orderless` — the four-element model contains no universal
+  type and no orderless type, so MLT* as axiomatised does not *entail* the star
+  phenomena; it permits them. Showing this needs a model, which is why it
+  appears in neither existing specification.
+
+Note which of these need which axiom. `IsPowertypeOf.secondOrderType`,
+`categorizes_iff` and `Partitions.existsUnique` assume nothing beyond the
+definitions; the acyclicity results need only `a4`; the uniqueness results need
+only `a9`.
 
 ## Beyond the TPTP fragment
 

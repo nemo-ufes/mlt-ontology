@@ -128,4 +128,18 @@ theorem IsUniversal.orderlessType [Constants E] {t : E} (h : IsUniversal t) :
     OrderlessType t :=
   ⟨h.isType, fun ⟨_, hb, hs⟩ => hb.not_universal (h.specializes hs)⟩
 
+/-- There is at most one universal type, by extensionality. -/
+theorem IsUniversal.unique [Extensional E] {a b : E}
+    (h₁ : IsUniversal a) (h₂ : IsUniversal b) : a = b :=
+  typeExtensionality h₁.isType h₂.isType fun x => ⟨fun _ => h₂ x, fun _ => h₁ x⟩
+
+/-- A universal type has no order at all — not merely "not the order of any
+basic type".  It instantiates itself, so were it first-order it would be one of
+its own individuals. -/
+theorem IsUniversal.not_firstOrderType {t : E} (h : IsUniversal t) :
+    ¬ FirstOrderType t := fun hf => hf.2 t h.iof_self hf.1
+
+theorem IsUniversal.not_secondOrderType {t : E} (h : IsUniversal t) :
+    ¬ SecondOrderType t := fun hs => h.not_firstOrderType (hs.2 t h.iof_self)
+
 end MLTStar

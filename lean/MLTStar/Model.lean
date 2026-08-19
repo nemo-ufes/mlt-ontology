@@ -140,6 +140,30 @@ theorem consistent :
     ∃ (E : Type) (_ : Domain E) (_ : Extensional E) (_ : Grounded E), Nonempty (Constants E) :=
   ⟨W, inferInstance, inferInstance, inferInstance, ⟨inferInstance⟩⟩
 
+/-! ## Two independence results
+
+The model is a pure basic-MLT model: every one of its types sits at an order.
+So the axioms as formalised do *not* force the "star" phenomena to occur —
+orderless types are permitted by MLT*, not entailed by it.  Establishing that
+needs a model, which is why neither existing specification records it. -/
+
+instance instDecidableIsUniversal (t : W) : Decidable (IsUniversal t) :=
+  inferInstanceAs (Decidable (∀ e, iof e t))
+
+/-- No universal type exists in the model, so MLT* does not prove that one
+exists. -/
+theorem no_universal : ¬ ∃ t : W, IsUniversal t := by decide
+
+/-- No orderless type exists in the model either: all three of its types are
+basic, hence ordered. -/
+theorem no_orderless : ¬ ∃ t : W, OrderlessType t := by
+  rintro ⟨t, ht, hno⟩
+  cases t
+  · exact not_isType_ind ht
+  · exact hno cIndividual_orderedType
+  · exact hno cFot_orderedType
+  · exact hno cSot_orderedType
+
 /-! ## The model computed
 
 A batch of MLT* predicates, evaluated in the model by the kernel.  These are

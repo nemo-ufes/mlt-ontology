@@ -3,5 +3,8 @@ import MLTStar.Basic
 import MLTStar.Powertype
 import MLTStar.Constants
 import MLTStar.AntiPatterns
+import MLTStar.Orders
+import MLTStar.Categorization
+import MLTStar.Acyclicity
 import MLTStar.Stratification
 import MLTStar.Model
