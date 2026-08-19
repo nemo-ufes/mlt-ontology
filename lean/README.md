@@ -320,3 +320,18 @@ What the file establishes:
 
 The trade is therefore precise: three primitive constants and a finite model, or
 two existence axioms that generate every order and require an infinite one.
+
+### Getting a finite model back
+
+No *added* axiom can do it. Adding axioms removes models and never adds any, and
+`Seeded` + `BasicPowertypeClosed` already prove `Nat` embeds in the domain
+(`nat_embeds`), so every extension of that theory proves it too — including an
+inconsistent one, which has no models at all. The successor axiom has to be
+weakened rather than supplemented.
+
+Bounding its height is the natural weakening. `Stratified D h` asks for a tower
+that climbs `h` times and no further, so finite models are permitted again — and
+it is not a new axiom: `Stratified D 2` and `Constants D` prove each other
+(`constantsOfStratified`, `stratified_of_constants`). `a13`–`a15` *is* bounded
+closure at height two, written out as three constants rather than as a schema,
+which is why the four-element model satisfies it (`Model.stratified_two`).

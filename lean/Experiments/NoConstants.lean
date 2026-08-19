@@ -395,6 +395,95 @@ theorem consistent :
 
 end Chain
 
+
+/-! ## 8. No *added* axiom can restore a finite model
+
+Adding axioms removes models; it never adds any. `Seeded` together with
+`BasicPowertypeClosed` already proves that `Nat` embeds into the domain, so
+every extension of that theory proves it too — including an inconsistent one,
+which has no models at all. The question "what axiom would give us a finite
+model" therefore has no answer of that shape: the successor axiom has to be
+*weakened*, not supplemented.
+
+The natural weakening is to bound the height of the tower rather than let it
+climb forever. -/
+
+/-- `Seeded` + `BasicPowertypeClosed` embed `Nat` in the domain, so no model of
+theirs is finite — and no further axiom can change that. -/
+theorem nat_embeds [Extensional E] [Grounded E] :
+    ∃ f : Nat → E, ∀ m n, f m = f n → m = n :=
+  ⟨tower, tower_injective⟩
+
+/-! ## 9. Bounded closure — and `a13`–`a15` is exactly its height-2 case
+
+`Stratified D h` says the tower exists and climbs `h` times. Nothing then forces
+it to climb further, so finite models are permitted again.
+
+The punchline is that this is not a new axiom at all: `Stratified D 2` and
+`Constants D` prove each other. The present encoding was already the bounded
+one — `a13`–`a15` is bounded closure at height two, written out as three
+constants rather than as a schema. -/
+
+/-- There is a tower of basic types that climbs at least `h` times. -/
+class Stratified (D : Type u) [Domain D] (h : Nat) : Prop where
+  exists_tower : ∃ b : Nat → D,
+    (∀ e, iof e (b 0) ↔ Individual e) ∧
+    (∀ n, n < h → IsPowertypeOf (b (n + 1)) (b n))
+
+/-- Order one, relative to any type of all individuals. -/
+theorem firstOrderType_iff_specializes_of {D : Type u} [Domain D] {b : D}
+    (hb : ∀ e, iof e b ↔ Individual e) {t : D} : FirstOrderType t ↔ Specializes t b :=
+  ⟨fun h => ⟨h.1, fun e he => (hb e).mpr (h.2 e he)⟩,
+   fun h => ⟨h.1, fun e he => (hb e).mp (h.2 e he)⟩⟩
+
+/-- Order two, relative to any type of all first-order types. -/
+theorem secondOrderType_iff_specializes_of {D : Type u} [Domain D] {c : D}
+    (hc : ∀ e, iof e c ↔ FirstOrderType e) {t : D} : SecondOrderType t ↔ Specializes t c :=
+  ⟨fun h => ⟨h.1, fun e he => (hc e).mpr (h.2 e he)⟩,
+   fun h => ⟨h.1, fun e he => (hc e).mp (h.2 e he)⟩⟩
+
+private noncomputable def twr (D : Type u) [Domain D] [Stratified D 2] : Nat → D :=
+  (Stratified.exists_tower (D := D) (h := 2)).choose
+
+private theorem twr_zero (D : Type u) [Domain D] [Stratified D 2] :
+    ∀ e : D, iof e (twr D 0) ↔ Individual e :=
+  (Stratified.exists_tower (D := D) (h := 2)).choose_spec.1
+
+private theorem twr_succ (D : Type u) [Domain D] [Stratified D 2] :
+    ∀ n, n < 2 → IsPowertypeOf (twr D (n + 1)) (twr D n) :=
+  (Stratified.exists_tower (D := D) (h := 2)).choose_spec.2
+
+private theorem twr_one (D : Type u) [Domain D] [Stratified D 2] :
+    ∀ e : D, iof e (twr D 1) ↔ FirstOrderType e := fun e =>
+  ((twr_succ D 0 (by omega)).2 e).trans
+    (firstOrderType_iff_specializes_of (twr_zero D)).symm
+
+/-- A tower of height two gives the three constants. -/
+noncomputable def constantsOfStratified (D : Type u) [Domain D] [Stratified D 2] :
+    Constants D where
+  cIndividual := twr D 0
+  cFot := twr D 1
+  cSot := twr D 2
+  cIndividual_spec := twr_zero D
+  cFot_spec := twr_one D
+  cSot_spec := fun x =>
+    ((twr_succ D 1 (by omega)).2 x).trans
+      (secondOrderType_iff_specializes_of (twr_one D)).symm
+
+/-- …and conversely, so the two are equivalent. -/
+theorem stratified_of_constants (D : Type u) [Domain D] [Constants D] : Stratified D 2 where
+  exists_tower :=
+    ⟨fun n => match n with
+      | 0 => cIndividual
+      | 1 => cFot
+      | _ => cSot,
+     iof_cIndividual_iff,
+     by
+       intro n hn
+       match n, hn with
+       | 0, _ => exact cFot_isPowertypeOf_cIndividual
+       | 1, _ => exact cSot_isPowertypeOf_cFot⟩
+
 end MLTStar.Experiment
 
 /-! ## 7. …and strictly stronger
@@ -411,5 +500,9 @@ theorem no_powertype_of_cSot : ¬ ∃ p : W, IsPowertypeOf p W.cSot := by decide
 
 theorem not_basicPowertypeClosed : ¬ Experiment.BasicPowertypeClosed W :=
   fun h => no_powertype_of_cSot (h.exists_powertype W.cSot cSot_basicType)
+
+/-- But it *is* a tower of height two — a finite model of the bounded axiom. -/
+theorem stratified_two : Experiment.Stratified W 2 :=
+  Experiment.stratified_of_constants W
 
 end MLTStar.Model
