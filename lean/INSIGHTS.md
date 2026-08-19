@@ -431,6 +431,41 @@ has three independent posits — singleton for classification, union for
 orderlessness, and the constants for the infinitary collections neither can
 reach — where the theory as published states only the third.
 
+## 15. All three hold together: the hereditarily finite model
+
+Independence is shown above with three *different* models, which leaves open
+whether singletons and unions can coexist at all. They can, and so can the
+constants alongside them. `Experiments/Hereditary.lean` gives one domain
+satisfying `a9`, `a4`, singleton closure, union closure and `a13`–`a15`
+together.
+
+The model is the hereditarily finite sets under Ackermann coding: an entity is a
+natural number, and `a` is an instance of `b` exactly when **bit `a` of `b` is
+set**. Every piece of MLT* then has an arithmetic reading:
+
+| MLT* | in the model |
+| --- | --- |
+| `iof a b` | `b.testBit a` |
+| `a9` extensionality | a natural number is determined by its bits |
+| `a4` grounding | a set bit of `m` is smaller than `m` |
+| singleton of `a` | `2 ^ a` |
+| union | bitwise or |
+| the one individual | `0` |
+| `cIndividual`, `cFot`, `cSot` | `1`, `2`, `4` |
+
+`HF.consistent` collects it. Two things fall out that are worth having.
+
+**Finite comprehension is now concrete.** Abstractly, in any domain with both
+principles every finite non-empty list of entities is a type
+(`exists_finiteType`, by induction: singleton for the head, union for the rest).
+In the model this is just "every natural number is a finite set of naturals".
+
+**And §13's abstract theorem gets a witness.** The entity `3` — bits 0 and 1, so
+the set `{0, 1}` — has the individual `0` and the type `1` among its instances,
+and is therefore orderless. It is exactly the union of `cIndividual`'s singleton
+with `cFot`'s, which is the construction `exists_orderlessType` performs in the
+abstract. One can point at the orderless type and read off its bits.
+
 ## What could be proved next
 
 Open, in rough order of how much they would clarify:

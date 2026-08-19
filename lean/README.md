@@ -52,6 +52,7 @@ LEAN_PATH=.lake/build/lib/lean lean scripts/AxiomAudit.lean
 | `Experiments/Designs.lean` | Specialization as a partial order, the powertype as an order embedding and right adjoint, independence of the axioms, and why comprehension is unavailable |
 | `Experiments/Subordination.lean` | Why self-subordination is an ascending chain condition, and is refuted by finiteness rather than by order |
 | `Experiments/Existence.lean` | What makes types exist: singletons, unions and the constants as three independent principles |
+| `Experiments/Hereditary.lean` | A hereditarily finite model where all three hold at once, plus finite comprehension |
 
 ## How the encoding is organised
 
@@ -400,4 +401,17 @@ claims outright are the three constants; everything else is conditional.
   (`exists_pairType`), which is bounded comprehension and so safe. `Chain`,
   `Pair` and `Model.W` separate the three principles pairwise.
 
-See `INSIGHTS.md` §9–14 for the discussion and the remaining open targets.
+### `Hereditary.lean` — all three principles at once
+
+The independence results use three different models, so it is worth checking the
+principles are jointly satisfiable. They are: the hereditarily finite sets under
+Ackermann coding, where an entity is a natural number and `a` is an instance of
+`b` exactly when bit `a` of `b` is set. Extensionality is that a number is
+determined by its bits, grounding is that a set bit of `m` is below `m`, the
+singleton of `a` is `2 ^ a`, union is bitwise or, the individual is `0`, and the
+constants are `1`, `2` and `4` (`HF.consistent`).
+
+`exists_finiteType` is the abstract counterpart: in any domain with singletons
+and unions, every finite non-empty list of entities is the extension of a type.
+
+See `INSIGHTS.md` §9–15 for the discussion and the remaining open targets.

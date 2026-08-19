@@ -2,3 +2,4 @@ import Experiments.NoConstants
 import Experiments.Designs
 import Experiments.Subordination
 import Experiments.Existence
+import Experiments.Hereditary
